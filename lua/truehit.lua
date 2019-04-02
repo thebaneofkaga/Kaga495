@@ -1,3 +1,5 @@
+local M = {}
+
 --[[
 Fire Emblem 7 (as with most of the games in the series) use a mechanic called "True Hit"
 When attacking enemies, the game has a displayed hit rate %, which isn't actually used to determine if the attack hits or misses.
@@ -28,3 +30,7 @@ function DisplayAllHits()
         print(GetTrueHit(i))
     end
 end
+
+M.GetTrueHit = GetTrueHit
+
+return M

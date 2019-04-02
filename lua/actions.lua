@@ -2,9 +2,7 @@ local M = {}
 
 local TheCharData = require("chardata")
 local TheTrueHit = require("truehit")
-local TheVba = require("vba")
-
---buttons = TheVba.buttons
+local TheVba = require("vbaF")
 
 --parameter is the unit you want to move (cycle to find the unit based on some search)
 function SelectUnit(Unit)
@@ -48,22 +46,29 @@ function Move(Unit, LocX, LocY)
     --move up/down second
     for i = 1, absY, 1
     do
-        if (difY > 0)
+        if (difY < 0)
         then
             TheVba.Press("up", 30)
         else
             TheVba.Press("down", 30)
         end
     end
+
+    TheVba.Press("A", 30)
     
 end
 
---myUnit = TheCharData.PlayerUnits[2] --Should be Marcus
+myUnit = TheCharData.PlayerUnits[2] --Should be Marcus
 
 --TheCharData.tprint(myUnit)
---Move(myUnit, 0xf, 0x6)
+Move(myUnit, 0xf, 0x6)
+
+--myHit = 50
+--myTrue = TheTrueHit.GetTrueHit(myHit)
+--print(myHit .. " " .. myTrue)
 
 --parameters are the two units that will fight each other
+--Note: assumes that the attack is optimal
 function Attack(Unit, Enemy)
 
 end
