@@ -1,6 +1,7 @@
 local M = {}
 
 local TheCharData = require("chardata")
+local TheClassData = require("classdata")
 
 function calculateScore()
     -- add cover 25
@@ -30,28 +31,43 @@ function calculateScore()
 
 end
 
-function getNextCharMove(character)
+function getNextCharMove(character, slotNum, map)
+    move = ""
+    print("running next move for slot " .. slotNum)
+
+    terrain = {}
+    terrain = TheClassData.GetClassType(character[2])
+    print("loaded in terrain movement")
+    -- TheCharData.tprint(map)
+
+    -- find what moves slot could take
+
+    -- calculate score for each move
+
     
+
+    return move;
 end
 
 function GroupHeuristic(tableOfCharacters)
-    move = "";
+    move = {};
 
     TheCharData.PrintTable(tableOfCharacters)
 
     for i,v in ipairs(tableOfCharacters) do
-        move = getNextCharMove(v)
+        move[i] = getNextCharMove(v)
     end
 
 
 end
----[[
+--[[ 
 GroupHeuristic(TheCharData.PlayerUnits);
+getNextCharMove(TheCharData.PlayerUnits[1]);
 
-
---]]
+-- ]]
 
 
 M.GroupHeuristic = GroupHeuristic;
+M.getNextCharMove = getNextCharMove;
 
 return M;
