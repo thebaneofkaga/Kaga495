@@ -373,6 +373,38 @@ function DisplayAllUnits(PlayerUnits, EnemyUnits, Boss)
     PrintTable(Boss)
 end
 
+function addUnitsToMap(map)
+    for i,v in ipairs(PlayerUnits) do
+        print(memory.readbyte(v[8]) .. ", " .. memory.readbyte(v[7]) )
+        if ( memory.readword(v[2]) ~= 0x0000) then
+            map[ memory.readbyte(v[8]) + 1 ][ memory.readbyte(v[7]) + 1][2] = 1
+        else
+            print("no more units")
+            break;
+        end
+    end
+    for i,v in ipairs(EnemyUnits) do
+        print(memory.readbyte(v[8]) .. ", " .. memory.readbyte(v[7]) )
+        if ( memory.readword(v[2]) ~= 0x0000) then
+            map[ memory.readbyte(v[8]) + 1 ][ memory.readbyte(v[7]) + 1][2] = 2
+        else
+            print("no more units")
+            break;
+        end
+    end
+    for i,v in ipairs(Boss) do
+        print(memory.readbyte(v[8]) .. ", " .. memory.readbyte(v[7]) )
+        if ( memory.readword(v[2]) ~= 0x0000) then
+            map[ memory.readbyte(v[8]) + 1 ][ memory.readbyte(v[7]) + 1][2] = 3
+        else
+            print("no more units")
+            break;
+        end
+    end
+    -- tprint(map)
+    return map;
+end
+
 --DisplayAllUnits(PlayerUnits, EnemyUnits, Boss)
 
 M.PlayerUnits = PlayerUnits
@@ -383,5 +415,6 @@ M.PlayerUnits = PlayerUnits
 M.EnemyUnits = EnemyUnits
 M.Boss = Boss
 M.PrintTable = PrintTable
+M.addUnitsToMap = addUnitsToMap
 
 return M

@@ -3,6 +3,10 @@ local M = {}
 local TheCharData = require("chardata")
 local TheClassData = require("classdata")
 
+function findMoves(character, map)
+
+end
+
 function calculateScore()
     -- add cover 25
 

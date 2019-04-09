@@ -26,7 +26,7 @@ do
     map[i] = {}
     for j=1, cols, 1 
     do
-        map[i][j] = 0
+        map[i][j] = {}
     end
 end
 
@@ -42,7 +42,7 @@ do
     the_row = io.read()
     for j=1, cols, 1
     do
-        map[i][j] = the_row:sub(j,j)
+        map[i][j] = {the_row:sub(j,j), 0}
     end
 end
 
