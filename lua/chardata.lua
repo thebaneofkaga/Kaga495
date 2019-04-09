@@ -376,6 +376,8 @@ end
 --DisplayAllUnits(PlayerUnits, EnemyUnits, Boss)
 
 M.PlayerUnits = PlayerUnits
+M.EnemyUnits = EnemyUnits
+M.Boss = Boss
 M.tprint = tprint
 
 return M
