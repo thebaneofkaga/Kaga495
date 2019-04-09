@@ -170,6 +170,7 @@ end
 --parameters are the unit and the item said unit will consume
 --Note: assumes that the unit already knows it has an item it wants to use
 --Note: also assumes the unit also is on the optimal tile (already moved)
+--Relatively important: CANTO is not accounted for in the use option, but the AI simply knows that it exists
 function UseItem(Unit, Item)
     --Reminder: item value is in hex
     local itemSlotOne = 20
@@ -210,14 +211,18 @@ end
 --eneUnitTwo = TheCharData.EnemyUnits[5] --should be the above bandit (3)
 --Attack(myUnit, eneUnitOne)
 
---parameter is simply the unit who will open the door 
+--no parameters needed
+--Like above, the function does not care about if a unit has Canto
 function OpenDoor(Unit)
-
+    --Opens the door (near instantly)
+    TheVba.Press("A", 30)
 end
 
---parameter is simply the unit who will open the chest
-function OpenChest(Unit)
-
+--no parameters needed
+--Again, Canto isn't considered
+function OpenChest()
+    --Giving a somewhat generous wait after opening a chest (just in case an input might get eaten)
+    TheVba.Press("A", 240)
 end
 
 --parameters are the the shop itself (different shops have different items), the available gold to spend, and the item(s?) the unit want
@@ -265,6 +270,55 @@ function Seize()
     --Consider adding in calls to skip post-chapter dialogue
 end
 
+--no parameters needed
+function Wait()
+    --simply end the units turn without taking any other actions
+    --surprisingly more common than expected
+    --Interesting Note: wait is always the last option to select (moving up loops the selector to the bottom)
+    --If you have no items in your inventory and you are not adjacent to anyone, you might not have ANY other possible actions
+    --Because of this, pressing "up" when your list of actions is just "Wait" results in an obsolete waste of 30 frames
+    --But I won't optimize this
+    TheVba.Press("up", 30)
+    TheVba.Press("A", 30)
+end
+
+--no parameters needed
+function WaitOutTheEnemy() 
+    --when it's not the player's turn, you can only watch (there is no way to input anything besides soft/hard resetting your game)
+
+    phaseBase = 0x0202BC07
+    --[[
+        0x00: Player Phase
+        0x40: Neutral Phase
+        0x80: Enemy Phase 
+    --]]
+    --Because you can only take control on player phase, being in the neutral phase is equivalent to enemy phase when waiting
+
+    while(1)
+    do 
+        hexPhase = memory.readbyte(phaseBase)
+        if(hexPhase == 0x80 or hexPhase == 0x40)
+        then
+            --Since the only thing you can do is wait, just call our NextInput function
+            print("Not my turn! Waiting 150 frames!")
+            TheVba = NextInput(150)
+        else
+            --print("My turn! Waiting 150 frames!")
+        end
+    end
+end
+
+--no parameters needed
+function GetTurnCount()
+    turnBase = 0x0202BC08
+    while(1)
+    do
+        intTurn = memory.readbyte(turnBase)
+        --print("The current turn is " .. intTurn)
+        TheVba.NextInput(150)
+    end
+end
+
 M.SelectUnit = SelectUnit
 M.Move = Move
 M.Attack = Attack
@@ -275,5 +329,8 @@ M.PurchaseItem = PurchaseItem
 M.Rescue = Rescue
 M.Drop = Drop
 M.Seize = Seize
+M.Wait = Wait
+M.WaitOutTheEnemy = WaitOutTheEnemy
+M.GetTurnCount = GetTurnCount
 
 return M
