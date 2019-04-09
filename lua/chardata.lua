@@ -377,5 +377,8 @@ end
 
 M.PlayerUnits = PlayerUnits
 M.tprint = tprint
+M.PlayerUnits = PlayerUnits
+M.EnemyUnits = EnemyUnits
+M.Boss = Boss
 
 return M
