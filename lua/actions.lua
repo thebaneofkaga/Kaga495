@@ -73,15 +73,17 @@ function Attack(Unit, Enemy)
     TheVba.Press("A", 30)
     --Select proper target tile
     --The cursor automatically moves to the targeted enemy, however, you can be in range of multiple enemies
-    --For example, if an enemy is to the left and above you, the cursor auto places itself on the one above (unconfirmed)
-    --While it isn't true there is an enemy directly above you, we can "assume" there is one
-    --After all, we don't need to keep track of the cursor here (potentially)
+    --For example, if an enemy is to the left and above you, the cursor auto places itself on the one above
+
+    --Current Algorithm (Bugged)
+    --While it isn't true there is an enemy directly above you, we can "assume" there is one << You actually can't
+    --After all, we don't need to keep track of the cursor here << We might have to
+
+    --Valid section
     --If our "dummy cursor" isn't on the requested enemy, just press right
     --We can keep pressing right until the "dummy cursor" is on the enemy tile
-    --If there is only one enemy, then pressing left doesn't actually do anything
-    --If there are multiple enemies, then each left will cycle to a different one 
-    
-    --Concern: Need to find the actual order of tile movements (the true order)
+    --If there is only one enemy, then pressing right doesn't actually do anything
+    --If there are multiple enemies, then each right will cycle clockwise
 
     --Excluding the long bow and seige tomes (so, the realistic scenario of enemies within 1-2 range) looks like this
     --[[
@@ -104,11 +106,9 @@ function Attack(Unit, Enemy)
     print("eneX: " .. eneX)
     print("eneY: " .. eneY)
 
-    cursorNotOnEnemy = true --assume it isn't on the enemy, but we'll check it first anyway
+    cursorNotOnEnemy = true --assume it isn't on the enemy, but we'll check it first anyway 
     searchAttempt = 0
 
-    --VERY IMPORTANT BUG
-    --assumes clockwise cursor rotations (NOT ACCURATE)
     while(cursorNotOnEnemy)
     do
         if(dumX == eneX and dumY == eneY)
@@ -163,6 +163,7 @@ function Attack(Unit, Enemy)
     --Might need to increase this time due to level ups and such
     --240 frames seem to be a generous enough wait time for a "one time fits all" 
     --If we knew the outcome of a fight (such as a 100% guarantee to kill in one attack), we could optimize the frames
+    --Caution: a level up might require additional waiting time (as it takes many frames for the level up)
     TheVba.NextInput(240)
     --By now, the cursor should be located on the unit who initiated the attack (might be relevant)
 end
@@ -321,6 +322,15 @@ function GetTurnCount()
     end
 end
 
+--no parameters needed
+--Note: Since different villages yield different rewards (item/gold/character), we might need to hardcode the rewards
+--Caution: This could impact the inputs required when skipping dialogue and updating the map
+function VisitVillage()
+    TheVba.Press("A", 60)
+    --Similar to opening a chest, I'm giving a fairly generous wait time
+    TheVba.Press("start", 300)
+end
+
 M.SelectUnit = SelectUnit
 M.Move = Move
 M.Attack = Attack
@@ -334,5 +344,6 @@ M.Seize = Seize
 M.Wait = Wait
 M.WaitOutTheEnemy = WaitOutTheEnemy
 M.GetTurnCount = GetTurnCount
+M.VisitVillage = VisitVillage
 
 return M
