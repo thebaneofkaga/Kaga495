@@ -37,7 +37,7 @@ end
 function GroupHeuristic(tableOfCharacters)
     move = "";
 
-    TheCharData.tprint(tableOfCharacters)
+    TheCharData.PrintTable(tableOfCharacters)
 
     for i,v in ipairs(tableOfCharacters) do
         move = getNextCharMove(v)
