@@ -238,11 +238,13 @@ function PurchaseItem(Shop, Gold, Item)
     --Issue: Cannot find the hex values of items in a given shop! (See "GetShopData()")
 end
 
---Returns only 0s on reading
---Bug: the itemBase is not the proper location in memory (perhaps?)
+--Unknown parameters, might need to hardcode shop data
+--Alternatively, don't use any shops...
 function GetShopData()
     local ShopItems = {}
-    itemBase = 0x0203A720
+    --BUG: This is your convoy base! Not shop base!
+    --itemBase = 0x0203A720 
+    --Caution: Don't know where to find shops in memory...
     for i = 1, 100, 1
     do
         myHex = memory.readbyte(itemBase)
