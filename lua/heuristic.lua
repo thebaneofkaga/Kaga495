@@ -2,9 +2,17 @@ local M = {}
 
 local TheCharData = require("chardata")
 local TheClassData = require("classdata")
+local mapReader = require("mapReader")
 
-function findMoves(character, map)
+function findMoves(character, map, movement)
+    allPossibleMovement = {}
+    finalList = {}
+    round =0;
 
+    while round <= movement[1] do
+        
+    end
+    
 end
 
 function calculateScore()
@@ -43,6 +51,7 @@ function getNextCharMove(character, slotNum, map)
     terrain = TheClassData.GetClassType(character[2])
     print("loaded in terrain movement")
     -- TheCharData.tprint(map)
+    findMoves(character, map, terrain)
 
     -- find what moves slot could take
 
