@@ -373,6 +373,8 @@ function DisplayAllUnits(PlayerUnits, EnemyUnits, Boss)
     PrintTable(Boss)
 end
 
+--Caution: This starts coordinates at (1,1) in the top left corner
+--The true memory of the game starts at (0,0) in the top left corner
 function addUnitsToMap(map)
     for i,v in ipairs(PlayerUnits) do
         print(memory.readbyte(v[8]) .. ", " .. memory.readbyte(v[7]) )
