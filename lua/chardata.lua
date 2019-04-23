@@ -407,6 +407,70 @@ function addUnitsToMap(map)
     return map;
 end
 
+--Note: The values inside the AllWeapons table are ints. We have a list of item hex values...
+--So, we'll be making comparisons if your weapon[index] == 0xHexValue instead of the true int we have in memory
+--Similar to printing the units on the map, this leads to an excess index of item value 0, which doesn't really matter
+function GetUnitRange(Unit)
+    myRanges = {}
+    itemSlotBase = 20
+    AllItems = {}
+    index = 1
+    itemHere = true --assume there is a item in the first slot (usually the case)
+    while(itemHere)
+    do
+        AllItems[index] = memory.readbyte(Unit[itemSlotBase])
+        itemSlotBase = itemSlotBase + 2 --+1 is the amount of the item left
+        if(AllItems[index] == 0x0)
+        then
+            itemHere = false
+        end
+        index = index + 1
+    end
+    index = index - 2 --this accounts for how many items are available to the player (variable cleanup)
+    --Caution: Not all items are weapons
+    --Range Table:
+    --[[
+        1: 1 Range 
+        2: 2 Range
+        3: 1 or 2 Range
+        4: 2 or 3 Range
+        5: Possibly some other range like seige tomes/staves (Mag/2)?
+    --]]
+    for i = 1, index, 1
+    do
+        currItem = AllItems[i] --this is an int type(number) we will be comparing to a hex value
+        --1 Range Weapons
+        --[[
+            0x01: Iron Sword
+            0x03: Steel Sword
+            0x09: Rapier
+            0x16: Steel Lance
+            0x1F: Iron Axe
+            0x20: Steel Axe
+        --]]
+        if(currItem == 0x01 or currItem == 0x03 or currItem == 0x09 or currItem == 0x16 or currItem == 0x1F or currItem == 0x20)
+        then
+            table.insert(myRanges, 1)
+        --2 Range Weapons
+        --[[
+            0x2C: Iron Bow
+        --]]
+        elseif(currItem == 0x2C)
+        then
+            table.insert(myRanges, 2)
+        --1 or 2 Range Weapons
+        --[[
+            0x1C: Javelin
+            0x28: Hand Axe
+        --]]
+        elseif(currItem == 0x1C or currItem == 0x28)
+        then
+            table.insert(myRanges, 3)
+        end
+    end
+    return myRanges
+end
+
 --DisplayAllUnits(PlayerUnits, EnemyUnits, Boss)
 
 M.PlayerUnits = PlayerUnits
@@ -418,5 +482,6 @@ M.EnemyUnits = EnemyUnits
 M.Boss = Boss
 M.PrintTable = PrintTable
 M.addUnitsToMap = addUnitsToMap
+M.GetUnitRange = GetUnitRange
 
 return M

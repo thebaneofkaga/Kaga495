@@ -3,6 +3,7 @@ local M = {}
 local TheCharData = require("chardata")
 local TheClassData = require("classdata")
 local mapReader = require("mapReader")
+local TheTrueHit = require("truehit")
 
 function findMoves(character, map, movement)
     allPossibleMovement = {}
@@ -20,34 +21,51 @@ end
 --need the character's slot (to know his X,Y coordinates, stats, and equipment)
 --Caution: map starts at (1,1) and NOT (0,0)
 function calculateScore(character, map)
-    score = 0
+    local score = 0
     -- add cover 25
     myX = memory.readbyte(character[7]); --Recall: Horz Position (Col)
     myY = memory.readbyte(character[8]); --Recall: Vert Postion (Row)
     myTerrain = map[myY+1][myX+1][1]
     print(myTerrain)
 
-    if(myTerrain == "")
+    if(myTerrain == "f")
     then
         score = score + 25
     end
     
     -- add if can attack 40
+
+    --Due to indexing issues, this is what each check would be for the bounds
+    --[[
+                                [y-1][x+1]
+
+                    [y  ][x  ]	[y  ][x+1]	[y  ][x+2]
+
+        [y+1][x-1]	[y+1][x  ]	[y+1][x+1]	[y+1][x+2]	[y+1][x+3]
+
+                    [y+2][x  ]	[y+2][x+1]	[y+2][x+2]
+
+                                [y+3][x+1]
+
+    --]]
+
     --Map Boundries
     topBound = 1
     rightBound = #map[1]
     botBound = #map
     leftBound = 1
 
-    --if the tile above me is out of bounds, don't read from the table!! (it will be a nil value)
-    if(myX+1 < topBound)
+    --if the tile in question is out of bounds, don't read from the table!! (it will be a nil value)
+    --this is the tile directly above me
+    if(myY < topBound)
     then
         adjT = {}
     else
         --if we get here, this means the tile above me is in bounds, so we can read from it
-        adjT = map[myY][myX+1];
+        adjT = map[myY][myX+1]
     end
 
+    --this is the tile directly to the right of me
     if(myX+2 > rightBound)
     then
         adjR = {}
@@ -55,6 +73,7 @@ function calculateScore(character, map)
         adjR = map[myY+1][myX+2]
     end
     
+    --this is the tile directly below me
     if(myY+2 > botBound) 
     then
         adjB = {}
@@ -62,12 +81,63 @@ function calculateScore(character, map)
         adjB = map[myY+2][myX+1]
     end
 
-    if(myY+1 < leftBound)
+    --this is the tile directly to the left of me
+    if(myX < leftBound)
     then
         adjL = {}
     else
         adjL = map[myY+1][myX]
     end 
+
+    --below are the tiles for weapons that could attack at 2 range
+    --this is 2 tiles above me
+    if(myY-1 < topBound)
+    then
+        adjTT = {}
+    else
+        adjTT = map[myY-1][myX+1]
+    end
+
+    --this is 1 tile up and 1 tile right
+    if(myY < topBound or myX+2 > rightBound)
+    then
+        adjTR = {}
+    else
+        adjTR = map[myY][myX+2]
+    end
+
+    --this is 1 tile down and 1 tile right
+    if(myY+2 > botBound or myX+2 > rightBound)
+    then
+        adjBR = {}
+    else
+        adjBR = map[myY+2][myX+2]
+    end
+
+    --this is 2 tiles below me
+    if(myY+3 > botBound)
+    then
+        adjBB = {}
+    else
+        adjBB = map[myY+3][myX+1]
+    end
+
+    --this is 1 tile to the left and 1 tile down
+    if(myX < leftBound or myY+2 > botBound)
+    then
+        adjBR = {}
+    else
+        adjBR = map[myY+2][myX]
+    end
+
+    --this is 1 tile to the left and 1 tile up
+    if(myX < leftBound or myY < topBound)
+    then
+        adjTL = {}
+    else
+        adjTL = map[myY][myX]
+    end
+
 
     --the adj tile at key 2 is the int value associated with what is on that tile
     --Recall: 0 is nobody, 1 is player unit, 2 is enemy unit...
@@ -80,12 +150,72 @@ function calculateScore(character, map)
     -- -- add if can hit 40
     --Note: all units will get some portion of this 40 points. You get a % of this 40 dependent on the hit rate! (80% hit gets you 32 points)
     --Note: Our AI knows about the true hit mechanic, thus, will likely score better here (and better in "getting hit")
+    
+    --Inside the combat window
+    myHit = memory.readbyte(0x0203A454)
+    myTrueHit = TheTrueHit.GetTrueHit(myHit)
+    myHitScore = 40 * myTrueHit / 100
+    score = score + myHitScore
 
     -- -- add if can kill 45
+    --Note: This will be weighted by the myHitScore (which already factors in true hit)
+    --A Fine Note: If you overkill an enemy (say, doing 21 damage to someone with 20 HP), you only do 20 damage
+    --Possible Caution: Suppose you could kill an enemy on the follow up attack
+    --You definitely can kill them, but you risk taking damage on the enemies attack (2nd of the 3 in total)...
+    --BIG Note: You don't double with Spd, you double with EFFECTIVE Spd
+    --Spd Penalty = WeaponWeight - Con; if this value is positive, it becomes 0 (can only be negative)
+    --Effective Spd = Spd - Spd Penalty
+    --Luckily for us, this EffSpd value is already in memory!
+    --Late Game Caution: Not factoring in brave weapons (these make you attack 2x per swing (up to 4x))
+    mySpd = memory.readbyte(0x0203A44E)
+    enemySpd = memory.readbyte(0x0203A4CE)
+
+    myDamage = memory.readbyte(0x0203A4F3)
+
+    if(mySpd >= (enemySpd + 4))
+    then
+        myDamage = myDamage * 2
+    end
+
+    enemyHP = memory.readbyte(0x0203A4E2)
+    if(myDamage >= enemyHP)
+    then
+        score = score + 45 * myTrueHit / 100
+    end
 
     -- add if will get hit -25
+    --Note: Similar to your hit rate, this value will be a percentage of the enemy hit rate
+    --Note: A unit who has a 2 range weapon attacked at 1 range has a hit rate of -1 (-- on the combat window)
+    enemyHit = memory.readbyte(0x0203A4D4)
+    enemyDmg = memory.readbyte(0x0203A4F7)
+    if(enemyHit > 0 and enemyDmg > 0)
+    then
+        enemyTrueHit = TheTrueHit.GetTrueHit(enemyHit)
+    else 
+        enemyTrueHit = 0
+    end
+
+    score = score - 25 * enemyTrueHit / 100
 
     -- add if survivable (50/ -50)
+    --This will be a simple check to see if dying is in the realm of possibility
+    --By design, if there is a non-zero chance of displayed hit that will kill the player unit, this gets full -50
+    --Conversely, if there is a zero chance of dying, you get the full +50
+    --We wanted to make some numerical weight to remove gambling--even if gambling is truly the best move
+    --Note: the enemy potentially doubles here, but it's likely that it would not happen
+    myCurHP = memory.readbyte(character[10])
+
+    if(enemySpd >= (mySpd + 4))
+    then
+        enemyDmg = enemyDmg * 2
+    end
+
+    if(enemyDmg >= myCurHP)
+    then
+        score = score - 50
+    else
+        score = score + 50
+    end
 
     -- add if will win (50)
 
