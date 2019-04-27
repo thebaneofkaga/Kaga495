@@ -4,17 +4,17 @@ local M = {}
 -- this only includes the tiles used in chapter 11, any other maps added
 -- will need to have the added tiles added to the key
 key = {}
-key["k"] = "Peak"
-key["m"] = "Mountain"
-key["c"] = "Cliff"
-key["l"] = "Lake"
-key["-"] = "---"
-key["p"] = "Plain"
-key["h"] = "House"
-key["v"] = "Village"
-key["f"] = "Forest"
-key["t"] = "Fort"
-key["g"] = "Throne"
+key["Peak"] = "k"
+key["Mountain"] = "m"
+key["Cliff"] = "c"
+key["Lake"] = "l"
+key["---"] = "-"
+key["Plain"] = "p"
+key["House"] = "h"
+key["Village"] = "v"
+key["Forest"] = "f"
+key["Fort"] = "t"
+key["Throne"] = "g"
 
 
 rows = 12
