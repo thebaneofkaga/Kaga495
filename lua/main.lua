@@ -9,6 +9,6 @@ charData.tprint(map)
 
 --print(heuristic.getNextCharMove(charData.PlayerUnits[1], 1, map))
 
-BFS.BFS(5,5, 8, 8,map);
+BFS.BFS(16,12, 4, 8,map);
 
 
