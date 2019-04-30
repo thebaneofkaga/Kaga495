@@ -73,15 +73,17 @@ function Attack(Unit, Enemy)
     TheVba.Press("A", 30)
     --Select proper target tile
     --The cursor automatically moves to the targeted enemy, however, you can be in range of multiple enemies
-    --For example, if an enemy is to the left and above you, the cursor auto places itself on the one above (unconfirmed)
-    --While it isn't true there is an enemy directly above you, we can "assume" there is one
-    --After all, we don't need to keep track of the cursor here (potentially)
+    --For example, if an enemy is to the left and above you, the cursor auto places itself on the one above
+
+    --Current Algorithm (Bugged)
+    --While it isn't true there is an enemy directly above you, we can "assume" there is one << You actually can't
+    --After all, we don't need to keep track of the cursor here << We might have to
+
+    --Valid section
     --If our "dummy cursor" isn't on the requested enemy, just press right
     --We can keep pressing right until the "dummy cursor" is on the enemy tile
-    --If there is only one enemy, then pressing left doesn't actually do anything
-    --If there are multiple enemies, then each left will cycle to a different one 
-    
-    --Concern: Need to find the actual order of tile movements (the true order)
+    --If there is only one enemy, then pressing right doesn't actually do anything
+    --If there are multiple enemies, then each right will cycle clockwise
 
     --Excluding the long bow and seige tomes (so, the realistic scenario of enemies within 1-2 range) looks like this
     --[[
@@ -104,11 +106,9 @@ function Attack(Unit, Enemy)
     print("eneX: " .. eneX)
     print("eneY: " .. eneY)
 
-    cursorNotOnEnemy = true --assume it isn't on the enemy, but we'll check it first anyway
+    cursorNotOnEnemy = true --assume it isn't on the enemy, but we'll check it first anyway 
     searchAttempt = 0
 
-    --VERY IMPORTANT BUG
-    --assumes clockwise cursor rotations (NOT ACCURATE)
     while(cursorNotOnEnemy)
     do
         if(dumX == eneX and dumY == eneY)
@@ -163,6 +163,7 @@ function Attack(Unit, Enemy)
     --Might need to increase this time due to level ups and such
     --240 frames seem to be a generous enough wait time for a "one time fits all" 
     --If we knew the outcome of a fight (such as a 100% guarantee to kill in one attack), we could optimize the frames
+    --Caution: a level up might require additional waiting time (as it takes many frames for the level up)
     TheVba.NextInput(240)
     --By now, the cursor should be located on the unit who initiated the attack (might be relevant)
 end
@@ -170,6 +171,7 @@ end
 --parameters are the unit and the item said unit will consume
 --Note: assumes that the unit already knows it has an item it wants to use
 --Note: also assumes the unit also is on the optimal tile (already moved)
+--Relatively important: CANTO is not accounted for in the use option, but the AI simply knows that it exists
 function UseItem(Unit, Item)
     --Reminder: item value is in hex
     local itemSlotOne = 20
@@ -210,14 +212,18 @@ end
 --eneUnitTwo = TheCharData.EnemyUnits[5] --should be the above bandit (3)
 --Attack(myUnit, eneUnitOne)
 
---parameter is simply the unit who will open the door 
+--no parameters needed
+--Like above, the function does not care about if a unit has Canto
 function OpenDoor(Unit)
-
+    --Opens the door (near instantly)
+    TheVba.Press("A", 30)
 end
 
---parameter is simply the unit who will open the chest
-function OpenChest(Unit)
-
+--no parameters needed
+--Again, Canto isn't considered
+function OpenChest()
+    --Giving a somewhat generous wait after opening a chest (just in case an input might get eaten)
+    TheVba.Press("A", 240)
 end
 
 --parameters are the the shop itself (different shops have different items), the available gold to spend, and the item(s?) the unit want
@@ -233,11 +239,13 @@ function PurchaseItem(Shop, Gold, Item)
     --Issue: Cannot find the hex values of items in a given shop! (See "GetShopData()")
 end
 
---Returns only 0s on reading
---Bug: the itemBase is not the proper location in memory (perhaps?)
+--Unknown parameters, might need to hardcode shop data
+--Alternatively, don't use any shops...
 function GetShopData()
     local ShopItems = {}
-    itemBase = 0x0203A720
+    --BUG: This is your convoy base! Not shop base!
+    --itemBase = 0x0203A720 
+    --Caution: Don't know where to find shops in memory...
     for i = 1, 100, 1
     do
         myHex = memory.readbyte(itemBase)
@@ -265,6 +273,64 @@ function Seize()
     --Consider adding in calls to skip post-chapter dialogue
 end
 
+--no parameters needed
+function Wait()
+    --simply end the units turn without taking any other actions
+    --surprisingly more common than expected
+    --Interesting Note: wait is always the last option to select (moving up loops the selector to the bottom)
+    --If you have no items in your inventory and you are not adjacent to anyone, you might not have ANY other possible actions
+    --Because of this, pressing "up" when your list of actions is just "Wait" results in an obsolete waste of 30 frames
+    --But I won't optimize this
+    TheVba.Press("up", 30)
+    TheVba.Press("A", 30)
+end
+
+--no parameters needed
+function WaitOutTheEnemy() 
+    --when it's not the player's turn, you can only watch (there is no way to input anything besides soft/hard resetting your game)
+
+    phaseBase = 0x0202BC07
+    --[[
+        0x00: Player Phase
+        0x40: Neutral Phase
+        0x80: Enemy Phase 
+    --]]
+    --Because you can only take control on player phase, being in the neutral phase is equivalent to enemy phase when waiting
+
+    while(1)
+    do 
+        hexPhase = memory.readbyte(phaseBase)
+        if(hexPhase == 0x80 or hexPhase == 0x40)
+        then
+            --Since the only thing you can do is wait, just call our NextInput function
+            print("Not my turn! Waiting 150 frames!")
+            TheVba = NextInput(150)
+        else
+            --print("My turn! Waiting 150 frames!")
+        end
+    end
+end
+
+--no parameters needed
+function GetTurnCount()
+    turnBase = 0x0202BC08
+    while(1)
+    do
+        intTurn = memory.readbyte(turnBase)
+        --print("The current turn is " .. intTurn)
+        TheVba.NextInput(150)
+    end
+end
+
+--no parameters needed
+--Note: Since different villages yield different rewards (item/gold/character), we might need to hardcode the rewards
+--Caution: This could impact the inputs required when skipping dialogue and updating the map
+function VisitVillage()
+    TheVba.Press("A", 60)
+    --Similar to opening a chest, I'm giving a fairly generous wait time
+    TheVba.Press("start", 300)
+end
+
 M.SelectUnit = SelectUnit
 M.Move = Move
 M.Attack = Attack
@@ -275,5 +341,9 @@ M.PurchaseItem = PurchaseItem
 M.Rescue = Rescue
 M.Drop = Drop
 M.Seize = Seize
+M.Wait = Wait
+M.WaitOutTheEnemy = WaitOutTheEnemy
+M.GetTurnCount = GetTurnCount
+M.VisitVillage = VisitVillage
 
 return M
