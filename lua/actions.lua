@@ -331,6 +331,313 @@ function VisitVillage()
     TheVba.Press("start", 300)
 end
 
+
+
+
+
+
+
+aCombatWindow = {
+    enemyHP,
+    enemyDMG, 
+    enemyHIT,
+    --enemyCRIT, --assuming enemy (and player) crits are 0
+    enemyEffSpd,
+    playerHP,
+    playerDMG,
+    playerHIT,
+    --playerCRIT, --see above
+    playerEffSpd
+}
+
+--no parameters needed
+--This is sort of a weird/not-so-intuitive function that isn't required
+--I could go out of my way and code all the equations that the game truly knows (such as the below source)
+--https://serenesforest.net/blazing-sword/miscellaneous/calculations/
+--I could combine the slot data with these calculations to get ahold of the combat window statistics (and have them at all times)
+--ALTERNTAIVELY: I could use a handful of memory addresses that hold the CURRENT player and CURRENT enemy combat window stats
+--this eliminates most (if not all) of the equations I would need to program 
+--Minor Annoyance: I need to be in the combat window to read these memory addresses (after all, they are temporary)
+--this function will be used to "investigate" the combat window to look at these memory addresses
+--after I read those addresses, I back out to where I was beforehand
+--I will then call for an attack AFTER I have investigated each combat window 
+--INTENTIONAL CONCERN!!!: I don't care about the quality of the combat statistic!!! This is by design!!!
+--The only purpose of this function is to populate the variables from those temporary addresses--NOT to decide if it is a good idea
+function Investigate(map, Unit)
+
+    myRanges = TheCharData.GetUnitRange(Unit)
+    --TheCharData.tprint(myRanges)
+    myWeapons = #myRanges
+
+    --table to hold all the combat window statistics when this gets returned
+    --For now, only implementing the melee adj
+    --combatWindows[1]:  adjT
+    --combatWindows[2]:  adjR
+    --combatWindows[3]:  adjB
+    --combatWindows[4]:  adjL
+    --combatWindows[5]:  adjTT
+    --combatWindows[6]:  adjTR
+    --combatWindows[7]:  adjRR
+    --combatWindows[8]:  adjBR
+    --combatWindows[9]:  adjBB
+    --combatWindows[10]: adjBL
+    --combatWindows[11]: adjLL
+    --combatWindows[12]: adjTL
+    combatWindows = {}
+
+    myX = memory.readbyte(Unit[7])
+    myY = memory.readbyte(Unit[8])
+
+    --Recall: the keys for map is the row; the keys for map[row] is the col
+    --Recall the range table for out of bounds 
+    --Due to indexing issues, this is what each check would be for the bounds
+    --[[
+                                [y-1][x+1]
+
+                    [y  ][x  ]	[y  ][x+1]	[y  ][x+2]
+
+        [y+1][x-1]	[y+1][x  ]	[y+1][x+1]	[y+1][x+2]	[y+1][x+3]
+
+                    [y+2][x  ]	[y+2][x+1]	[y+2][x+2]
+
+                                [y+3][x+1]
+
+    --]]
+
+    enemiesOneRange = 0
+    enemiesOneOrTwoRange = 0
+    enemiesTwoRange = 0
+
+    --Map Boundries
+    topBound = 1
+    rightBound = #map[1]
+    botBound = #map
+    leftBound = 1
+
+    --if the tile in question is out of bounds, don't read from the table!! (it will be a nil value)
+    --this is the tile directly above me
+    if(myY < topBound)
+    then
+        adjT = {}
+    else
+        --if we get here, this means the tile above me is in bounds, so we can read from it
+        adjT = map[myY][myX+1]
+        if(adjT[2] == 2)
+        then
+            enemiesOneRange = enemiesOneRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is the tile directly to the right of me
+    if(myX+2 > rightBound)
+    then
+        adjR = {}
+    else 
+        adjR = map[myY+1][myX+2]
+        if(adjR[2] == 2)
+        then
+            enemiesOneRange = enemiesOneRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+    
+    --this is the tile directly below me
+    if(myY+2 > botBound) 
+    then
+        adjB = {}
+    else 
+        adjB = map[myY+2][myX+1]
+        if(adjB[2] == 2)
+        then
+            enemiesOneRange = enemiesOneRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is the tile directly to the left of me
+    if(myX < leftBound)
+    then
+        adjL = {}
+    else
+        adjL = map[myY+1][myX]
+        if(adjL[2] == 2)
+        then
+            enemiesOneRange = enemiesOneRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end 
+
+    --below are the tiles for weapons that could attack at 2 range
+    --this is 2 tiles above me
+    if(myY-1 < topBound)
+    then
+        adjTT = {}
+    else
+        adjTT = map[myY-1][myX+1]
+        if(adjTT[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is 1 tile up and 1 tile right
+    if(myY < topBound or myX+2 > rightBound)
+    then
+        adjTR = {}
+    else
+        adjTR = map[myY][myX+2]
+        if(adjTR[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is 1 tile down and 1 tile right
+    if(myY+2 > botBound or myX+2 > rightBound)
+    then
+        adjBR = {}
+    else
+        adjBR = map[myY+2][myX+2]
+        if(adjBR[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is 2 tiles below me
+    if(myY+3 > botBound)
+    then
+        adjBB = {}
+    else
+        adjBB = map[myY+3][myX+1]
+        if(adjBB[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is 1 tile to the left and 1 tile down
+    if(myX < leftBound or myY+2 > botBound)
+    then
+        adjBL = {}
+    else
+        adjBL = map[myY+2][myX]
+        if(adjBL[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --this is 1 tile to the left and 1 tile up
+    if(myX < leftBound or myY < topBound)
+    then
+        adjTL = {}
+    else
+        adjTL = map[myY][myX]
+        if(adjTL[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end
+
+    --assume that on any given tile, you can't attack anything (reasonable assumption)
+    canAttack = false
+
+    --if there are ANY enemies you CAN attack, investiage their combat windows
+    --Note: even enemies you can't attack are in these variables, but we'll ignore them if you can't attack them
+    while(enemiesOneRange > 0 or enemiesTwoRange > 0 or enemiesOneOrTwoRange > 0)
+    do
+        --first check adj enemies
+        if(enemiesOneRange > 0)
+        then
+            --check your weapons to see if you have a weapon that can attack adj enemies (both 1 / 1 or 2 ranged weapons)
+            for i = 1, myWeapons, 1
+            do
+                --Recall the following
+                --[[
+                    1: 1 Range
+                    2: 2 Range
+                    3: 1-2 Range
+                --]]
+                if(myRanges[i] == 1 or myRanges[i] == 3)
+                then
+                    --I've confirmed that I -can- attack, so I know the input will happen
+                    canAttack = true
+                end
+            end
+            --by now, I should know if I can attack (based on the aformentioned bool)
+            if(canAttack)
+            then
+                --enter the usable weapon menu
+                TheVba.Press("A", 60)
+
+                --loop through each weapon that can attack (which isn't a list of all weapons in your inventory)
+                --KNOWN BUG: a Paladin -can- have an iron bow in his inventory... which has a range value of 2
+                --a Paladin can never use a bow in combat, but that range is still "valid"
+                --SOLUTION FOR LATER: implement class weapon ranks and weapons' ranks
+
+                --for now, assuming the usable weapon menu will be the same as your weapon list
+                --NOT TRUE all the time, but for now it's good enough
+                for i = 1, myWeapons, 1
+                do
+                    if(myRanges[i] == 1 or myRanges[i] == 3)
+                    then
+                        --we're entering the combat window
+                        TheVba.Press("A", 60)
+                        tempEnemiesOneRange = enemiesOneRange
+                        while(tempEnemiesOneRange > 0)
+                        do
+                            local k = i
+                            local tempCombatWindow = aCombatWindow
+                            --Recall: the combat window table is listed above this function
+                            --hp, dmg, hit, spd
+                            tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
+                            tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
+                            tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
+                            tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
+                            tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP
+                            tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
+                            tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
+                            tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                            print("printing tempCombatWindow on window " .. k .. " of 8")
+                            TheCharData.tprint(tempCombatWindow)
+                            table.insert(combatWindows, tempCombatWindow)
+                            print("which should be the same as combatWindows[" .. k .. "]")
+                            TheCharData.tprint(combatWindows[k])
+                            --we can't leave the combat window just yet (there might be more adj enemies)
+                            --but we can decrement this by 1
+                            tempEnemiesOneRange = tempEnemiesOneRange - 1
+                            --move it to the right (if there is only 1 enemy, this doesn't even do anything)
+                            TheVba.Press("right", 60)
+                            k = k + 1
+                        end
+                        --by now, all the enemies in one range have been accounted for the i'th weapon
+                        --exit the combat window
+                        TheVba.Press("B", 60)
+                        --cycle through the weapons
+                        for j = 1, i, 1
+                        do
+                            TheVba.Press("down", 60)
+                        end
+                        --the cursor is now on the next weapon
+                        print("cursor should be on next weapon")
+                    end
+                end
+                --all weapons have been cycled through
+                print("I cycled through all weapons")
+                return combatWindows
+            end
+        end
+    end
+end
+
 M.SelectUnit = SelectUnit
 M.Move = Move
 M.Attack = Attack
@@ -345,5 +652,6 @@ M.Wait = Wait
 M.WaitOutTheEnemy = WaitOutTheEnemy
 M.GetTurnCount = GetTurnCount
 M.VisitVillage = VisitVillage
+M.Investigate = Investigate
 
 return M
