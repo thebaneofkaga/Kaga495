@@ -7,11 +7,9 @@ local mapReader = require("mapReader")
 function findMoves(character, map, movement)
     allPossibleMovement = {}
     finalList = {}
-    round =0;
+    round = 0;
 
-    while round <= movement[1] do
-        
-    end
+    
     
 end
 
