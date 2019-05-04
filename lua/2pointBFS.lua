@@ -1,5 +1,6 @@
 local M = {};
 local reader = require("mapReader")
+local globals = require("globals")
 
 function overlap (startSearch, endSearch)
     for i,v in ipairs(startSearch) do
@@ -115,7 +116,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     table.insert(endSearch, {endY, endX, terrainInfo[2][reader.shortToString[ map[endY][endX][1]]][4]});
     -- table.insert(endSearch, {endY, endX, 0})
     count = 1;
-    while not overlap(startDiscovered, endDiscovered) do
+    while not overlap(startDiscovered, endDiscovered) 
+    and (not globals.empty(startSearch)
+    or not globals.empty(endSearch))
+    do
         startTemp = #startSearch
         for i=1, startTemp do
             local tempStartPY = {}
@@ -126,7 +130,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             tempStartPY[1] = startSearch[1][1] + 1;
             tempStartPY[2] = startSearch[1][2];
             
-            print(tempStartPY[1] .. ", " .. tempStartPY[2])
+            -- print(tempStartPY[1] .. ", " .. tempStartPY[2])
 
             tempStartNY[1] = startSearch[1][1] - 1;
             tempStartNY[2] = startSearch[1][2];
@@ -145,7 +149,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             if tempStartPY[1] <= #map 
             and tempStartPY[2]  <= #map[tempStartPY[1]] then
                 -- print("py within bounds")
-                print(tempStartPY[1] .. ", " .. tempStartPY[2])
+                -- print(tempStartPY[1] .. ", " .. tempStartPY[2])
                 -- within bounds
                 if map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
@@ -157,10 +161,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                     if not discovered(startDiscovered, tempStartPY)
                     and not discovered(startSearch, tempStartPY) then
                         -- print("discovered in py")
-                        print("----")
-                        print(tempStartPY[1] .. ", " .. tempStartPY[2])
-                        print(reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]])
-                        print("----")
+                        -- print("----")
+                        -- print(tempStartPY[1] .. ", " .. tempStartPY[2])
+                        -- print(reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]])
+                        -- print("----")
                         tempStartPY[3] = startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4];
                         table.insert(startSearch, tempStartPY)
                     elseif discovered(startDiscovered, tempStartPY) then
@@ -197,10 +201,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                     if not discovered(startDiscovered, tempStartNY) 
                     and not discovered(startSearch, tempStartNY) then
                         -- print("discovered in ny")
-                        print("----")
-                        print(tempStartNY[1] .. ", " .. tempStartNY[2])
-                        print(reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]])
-                        print("----")
+                        -- print("----")
+                        -- print(tempStartNY[1] .. ", " .. tempStartNY[2])
+                        -- print(reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]])
+                        -- print("----")
                         tempStartNY[3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4];
                         table.insert(startSearch, tempStartNY)
                     elseif discovered(startDiscovered, tempStartNY) and
@@ -235,10 +239,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                     if not discovered(startDiscovered, tempStartPX)
                     and not discovered(startSearch, tempStartPX) then
                         -- print("discovered in px")
-                        print("----")
-                        print(tempStartPX[1] .. ", " .. tempStartPX[2])
-                        print(reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]])
-                        print("----")
+                        -- print("----")
+                        -- print(tempStartPX[1] .. ", " .. tempStartPX[2])
+                        -- print(reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]])
+                        -- print("----")
                         tempStartPX[3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4];
                         table.insert(startSearch, tempStartPX)
                     elseif discovered(startDiscovered, tempStartPX) and
@@ -272,11 +276,11 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                     if not discovered(startDiscovered, tempStartNX) 
                     and not discovered(startSearch, tempStartNX) then
                         -- print("discovered in nx")
-                        print("----")
-                        print(tempStartNX[1] .. ", " .. tempStartNX[2])
-                        print(reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]])
-                        print("cost: " .. startSearch[1][3] +terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4])
-                        print("----")
+                        -- print("----")
+                        -- print(tempStartNX[1] .. ", " .. tempStartNX[2])
+                        -- print(reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]])
+                        -- print("cost: " .. startSearch[1][3] +terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4])
+                        -- print("----")
                         tempStartNX[3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4];
                         
                         table.insert(startSearch, tempStartNX)
@@ -301,6 +305,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             table.insert(startDiscovered, startSearch[1])
             table.remove(startSearch, 1)
         end
+        -- print("-----------------------")
+        -- tprint(startSearch)
+        -- print("-----------------------")
+
             ----------------------------------------------
         endTemp = #endSearch
         for i=1, endTemp do
@@ -451,6 +459,9 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             table.insert(endDiscovered, endSearch[1])
             table.remove(endSearch, 1)
         end
+        -- print("-----------------------")
+        -- tprint(endSearch)
+        -- print("-----------------------")
         
         count = count + 1;
     end 
@@ -458,6 +469,12 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     -- tprint(startDiscovered);
     -- print("--------------------------------")
     -- tprint(endDiscovered);
+    if globals.empty(startSearch) 
+    or globals.empty(endSearch)
+    then
+        return {}
+    end
+
     print("found overlap")
     path = {}
     centerSpot = getOverlap(startDiscovered, endDiscovered);
@@ -466,18 +483,24 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     while(path[1][1] ~= startY or path[1][2] ~= startX) do 
         -- print("in first while")
         next = findNext(startDiscovered, path[1])
+        if next == nil then
+            return {}
+        end
         -- tprint(next)
         table.insert(path, 1, next)
         startDiscovered = removeDistance(startDiscovered, path[1][3])
         -- print("--------------------------------------")
         -- tprint(startDiscovered);
     end
-    print("test")
+    -- print("test")
     tprint(path)
     while(path[#path][1] ~= endY or path[#path][2] ~= endX) do 
         -- print("test")
         next = findNext(endDiscovered, path[#path])
         -- tprint(next)
+        if(next == nil) then
+            return {};
+        end
         print(next[1] .. ", " .. next[2])
         table.insert(path, next)
         endDiscovered = removeDistance(endDiscovered, path[#path][3])
@@ -495,7 +518,11 @@ end
 function getLengthOfPath(path, map, terrainInfo)
     count = 1;
     distance = 0;
-
+    if(globals.empty(path)) then
+        print("non existant path")
+        return 999
+    end
+    tprint(path)
     -- while(path[count + 1][3] > path[count][3]) do
         
         print(reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ])

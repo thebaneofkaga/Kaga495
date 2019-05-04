@@ -76,6 +76,8 @@ Terrain["Wall (Weak)"] = {0, 0, 0, 999} --cannot cross, can attack to form floor
 function GetClassType(myClass)
     defaultMov = 5 --this is the standard movement of an unpromoted unit
     classRange = {defaultMov, Terrain}
+    myClass = string.format("%x", myClass)
+    print("class value of: " .. myClass)
     --"Foot" units
     --[[
         Each class, according to the slot data, comes in the form of 0xABCD. 

@@ -11,10 +11,11 @@ map = charData.addUnitsToMap(map)
 
 --print(heuristic.getNextCharMove(charData.PlayerUnits[1], 1, map))
 
--- path = BFS.BFS(16,12, 4, 8,map, classData.GetClassType(charData.PlayerUnits[1][2]));
--- charData.tprint(path)
--- dist = BFS.getLengthOfPath(path, map, classData.GetClassType(charData.PlayerUnits[1][2]))
--- print(dist)
-moves = heuristic.findMoves(charData.PlayerUnits[2], map, classData.GetClassType(charData.PlayerUnits[2][2]))
+path = BFS.BFS(16,12, 10, 12,map, classData.GetClassType(memory.readword(charData.PlayerUnits[1][2])));
+charData.tprint(path)
+dist = BFS.getLengthOfPath(path, map, classData.GetClassType(memory.readword(charData.PlayerUnits[1][2])))
+print(dist)
+-- print(memory.readword(charData.PlayerUnits[2][2]))
+-- moves = heuristic.findMoves(charData.PlayerUnits[2], map, classData.GetClassType( memory.readword(charData.PlayerUnits[2][2])) )
 
 
