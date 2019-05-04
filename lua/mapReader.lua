@@ -3,18 +3,32 @@ local M = {}
 -- the base key for reading in the terrain data
 -- this only includes the tiles used in chapter 11, any other maps added
 -- will need to have the added tiles added to the key
-key = {}
-key["Peak"] = "k"
-key["Mountain"] = "m"
-key["Cliff"] = "c"
-key["Lake"] = "l"
-key["---"] = "-"
-key["Plain"] = "p"
-key["House"] = "h"
-key["Village"] = "v"
-key["Forest"] = "f"
-key["Fort"] = "t"
-key["Throne"] = "g"
+stringToShort = {}
+stringToShort["Peak"] = "k"
+stringToShort["Mountain"] = "m"
+stringToShort["Cliff"] = "c"
+stringToShort["Lake"] = "l"
+stringToShort["---"] = "-"
+stringToShort["Plain"] = "p"
+stringToShort["House"] = "h"
+stringToShort["Village"] = "v"
+stringToShort["Forest"] = "f"
+stringToShort["Fort"] = "t"
+stringToShort["Throne"] = "g"
+
+shortToString = {}
+shortToString["k"] = "Peak"
+shortToString["m"] = "Mountain"
+shortToString["c"] = "Cliff"
+shortToString["l"] = "Lake"
+shortToString["-"] = "---"
+shortToString["p"] = "Plain"
+shortToString["h"] = "House"
+shortToString["v"] = "Village"
+shortToString["f"] = "Forest"
+shortToString["t"] = "Fort"
+shortToString["g"] = "Throne"
+
 
 
 rows = 12
@@ -58,6 +72,7 @@ end
 --QuickPrint(map)
 
 M.map = map;
-M.key = key;
+M.shortToString = shortToString;
+M.stringToShort = stringToShort;
 
 return M;

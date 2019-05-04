@@ -4,14 +4,61 @@ local TheCharData = require("chardata")
 local TheClassData = require("classdata")
 local mapReader = require("mapReader")
 local TheTrueHit = require("truehit")
+local BFS = require("2pointBFS")
 
 function findMoves(character, map, movement)
     allPossibleMovement = {}
     finalList = {}
     round = 0;
+    print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
+    -- this will automatically add all of the max distance
+    -- moves. then it will add all moves in the middle that
+    -- have something of interest (a forest, a fort, an enemy)
+    print(movement[1])
+    
+    for yInc = -1* movement[1], movement[1] do
+        
+        for xInc = -1* movement[1], movement[1]  do
+            if (math.abs(yInc) + math.abs(xInc) <= movement[1] )
+            then
+                
+                if ( (yInc + memory.readbyte(character[8]) + 1) < #map
+                and (xInc + memory.readbyte(character[7]) + 1) < #map[yInc + memory.readbyte(character[8]) + 1]
+                and notImpassible(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map)) -- within range
+                and ( math.abs(yInc) + math.abs(xInc) == movement[1] 
+                or isOfInterest(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map) ) -- is worth checking out
+                then
+                    print(yInc + memory.readbyte(character[8]) + 1 .. ", " .. xInc + memory.readbyte(character[7]) + 1)
+                end
+            end
+        end
+        print("end of for")
+    end
 
+    return finalList
     
-    
+end
+
+function notImpassible(y, x, map)
+    if(map[y][x][1] == mapReader.stringToShort["Cliff"]
+    or map[y][x][1] == mapReader.stringToShort["Peak"]
+    or map[y][x][1] == mapReader.stringToShort["---"])
+    then
+        return false
+    end
+
+    return true
+end
+
+function isOfInterest(y, x, map)
+    if map[y][x][1] == mapReader.stringToShort["Forest"]
+    or map[y][x][1] == mapReader.stringToShort["Fort"]
+    or map[y][x][2] == 2
+    or map[y][x][2] == 3
+    then
+        return true
+    end
+    return false
 end
 
 --assumes that the character has already moved onto a tile
@@ -270,6 +317,7 @@ getNextCharMove(TheCharData.PlayerUnits[1]);
 
 M.GroupHeuristic = GroupHeuristic;
 M.getNextCharMove = getNextCharMove;
+M.findMoves = findMoves;
 
 M.calculateScore = calculateScore;
 
