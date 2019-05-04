@@ -19,22 +19,29 @@ function findMoves(character, map, movement)
     for yInc = -1* movement[1], movement[1] do
         
         for xInc = -1* movement[1], movement[1]  do
-            if (math.abs(yInc) + math.abs(xInc) <= movement[1] )
-            then
-                
-                if ( (yInc + memory.readbyte(character[8]) + 1) < #map
-                and (xInc + memory.readbyte(character[7]) + 1) < #map[yInc + memory.readbyte(character[8]) + 1]
-                and notImpassible(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map)) -- within range
-                and ( math.abs(yInc) + math.abs(xInc) == movement[1] 
-                or isOfInterest(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map) ) -- is worth checking out
+            -- if (math.abs(yInc) + math.abs(xInc) <= movement[1] )
+            -- then
+                print(yInc .. ", " .. xInc)
+                path = BFS.BFS(memory.readbyte(character[7])+1, memory.readbyte(character[8])+1,
+                xInc + memory.readbyte(character[7]) + 1, yInc + memory.readbyte(character[8]) + 1,
+                map, movement)
+                print(BFS.getLengthOfPath(path, map, movement))
+                if BFS.getLengthOfPath(path, map, movement) <= movement[1]
+                -- math.abs(yInc) + math.abs(xInc) == movement[1] 
+                and ( BFS.getLengthOfPath(path, map, movement) == movement[1]
+                or isOfInterest(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map)) -- is worth checking out
                 then
-                    print(yInc + memory.readbyte(character[8]) + 1 .. ", " .. xInc + memory.readbyte(character[7]) + 1)
+                    print("found: " .. yInc + memory.readbyte(character[8]) + 1 .. ", " .. xInc + memory.readbyte(character[7]) + 1)
+                    table.insert(finalList, {yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1})
                 end
-            end
+            -- end
         end
         print("end of for")
     end
+    print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
+    print(movement[1])
 
+    tprint(finalList)
     return finalList
     
 end
@@ -51,13 +58,30 @@ function notImpassible(y, x, map)
 end
 
 function isOfInterest(y, x, map)
+
     if map[y][x][1] == mapReader.stringToShort["Forest"]
     or map[y][x][1] == mapReader.stringToShort["Fort"]
-    or map[y][x][2] == 2
-    or map[y][x][2] == 3
     then
         return true
     end
+    if y+1 <= #map and 
+    (map[y+1][x][2] == 2 or map[y+1][x][2] == 3)
+    then
+        return true
+    elseif y-1 > 0 and 
+    (map[y-1][x][2] == 2 or map[y-1][x][2] == 3)
+    then
+        return true
+    elseif x+1 <= #map[y] and 
+    (map[y][x+1][2] == 2 or map[y][x+1][2] == 3)
+    then
+        return true
+    elseif x-1 > 0 and 
+    (map[y][x-1][2] == 2 or map[y][x-1][2] == 3)
+    then
+        return true
+    end
+        
     return false
 end
 

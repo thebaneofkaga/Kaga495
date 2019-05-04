@@ -112,6 +112,14 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     endDiscovered = {};
     -- print(terrainInfo[1])
     -- print(#map .. ", " .. #map[1])
+    if startY > #map 
+    or startX  > #map[startY]
+    or endY > #map
+    or endX > #map[endY]
+    then
+        return {}
+    end
+    -- print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     table.insert(startSearch, {startY, startX, 0});
     table.insert(endSearch, {endY, endX, terrainInfo[2][reader.shortToString[ map[endY][endX][1]]][4]});
     -- table.insert(endSearch, {endY, endX, 0})
@@ -475,11 +483,11 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
         return {}
     end
 
-    print("found overlap")
+    -- print("found overlap")
     path = {}
     centerSpot = getOverlap(startDiscovered, endDiscovered);
     table.insert(path, 1, centerSpot)
-    print(centerSpot[1] .. ", " .. centerSpot[2])
+    -- print(centerSpot[1] .. ", " .. centerSpot[2])
     while(path[1][1] ~= startY or path[1][2] ~= startX) do 
         -- print("in first while")
         next = findNext(startDiscovered, path[1])
@@ -493,7 +501,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
         -- tprint(startDiscovered);
     end
     -- print("test")
-    tprint(path)
+    -- tprint(path)
     while(path[#path][1] ~= endY or path[#path][2] ~= endX) do 
         -- print("test")
         next = findNext(endDiscovered, path[#path])
@@ -501,15 +509,15 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
         if(next == nil) then
             return {};
         end
-        print(next[1] .. ", " .. next[2])
+        -- print(next[1] .. ", " .. next[2])
         table.insert(path, next)
         endDiscovered = removeDistance(endDiscovered, path[#path][3])
         -- print("--------------------------------------")
         -- tprint(endDiscovered);
     end
-    print("printing path")
-    tprint(path)
-    
+    -- print("printing path")
+    -- tprint(path)
+    print("end BFS")
     return path
 
 
@@ -522,17 +530,17 @@ function getLengthOfPath(path, map, terrainInfo)
         print("non existant path")
         return 999
     end
-    tprint(path)
+    -- tprint(path)
     -- while(path[count + 1][3] > path[count][3]) do
         
-        print(reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ])
+        -- print(reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ])
     --     distance = distance + terrainInfo[2] [reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ] ] [4];
     --     count = count + 1
     --     print(count)
     -- end
 
     for count = count, #path - 1 do 
-        print(reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ])
+        -- print(reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ])
         distance = distance + terrainInfo[2][reader.shortToString [ map [path[count+1][1]][ path[count+1][2] ][1] ]] [4];
     end
 
