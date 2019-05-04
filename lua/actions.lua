@@ -351,7 +351,7 @@ aCombatWindow = {
 }
 
 --no parameters needed
---This is sort of a weird/not-so-intuitive function that isn't required
+--This is sort of a weird/not-so-intuitive function
 --I could go out of my way and code all the equations that the game truly knows (such as the below source)
 --https://serenesforest.net/blazing-sword/miscellaneous/calculations/
 --I could combine the slot data with these calculations to get ahold of the combat window statistics (and have them at all times)
@@ -383,7 +383,7 @@ function Investigate(map, Unit)
     --combatWindows[10]: adjBL
     --combatWindows[11]: adjLL
     --combatWindows[12]: adjTL
-    combatWindows = {}
+    local combatWindows = {}
 
     myX = memory.readbyte(Unit[7])
     myY = memory.readbyte(Unit[8])
@@ -587,6 +587,7 @@ function Investigate(map, Unit)
                 --NOT TRUE all the time, but for now it's good enough
                 for i = 1, myWeapons, 1
                 do
+                    --local k = i --used as a counter for debugging printing tables 
                     if(myRanges[i] == 1 or myRanges[i] == 3)
                     then
                         --we're entering the combat window
@@ -594,29 +595,28 @@ function Investigate(map, Unit)
                         tempEnemiesOneRange = enemiesOneRange
                         while(tempEnemiesOneRange > 0)
                         do
-                            local k = i
-                            local tempCombatWindow = aCombatWindow
+                            local tempCombatWindow = {}
+                            table.insert(tempCombatWindow, aCombatWindow)
                             --Recall: the combat window table is listed above this function
                             --hp, dmg, hit, spd
                             tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
                             tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
                             tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
                             tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
-                            tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP
+                            tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
                             tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
                             tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
                             tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
-                            print("printing tempCombatWindow on window " .. k .. " of 8")
-                            TheCharData.tprint(tempCombatWindow)
                             table.insert(combatWindows, tempCombatWindow)
-                            print("which should be the same as combatWindows[" .. k .. "]")
-                            TheCharData.tprint(combatWindows[k])
                             --we can't leave the combat window just yet (there might be more adj enemies)
+                            --when you see a combat window, you can simply press right (or left) to go to the next one
                             --but we can decrement this by 1
                             tempEnemiesOneRange = tempEnemiesOneRange - 1
                             --move it to the right (if there is only 1 enemy, this doesn't even do anything)
+                            --likewise, if it's the last enemy, we press right to cycle to the original target
+                            --this "wastes" an input if we were being optimal
                             TheVba.Press("right", 60)
-                            k = k + 1
+                            --k = k + 1
                         end
                         --by now, all the enemies in one range have been accounted for the i'th weapon
                         --exit the combat window
@@ -627,14 +627,17 @@ function Investigate(map, Unit)
                             TheVba.Press("down", 60)
                         end
                         --the cursor is now on the next weapon
-                        print("cursor should be on next weapon")
                     end
                 end
                 --all weapons have been cycled through
-                print("I cycled through all weapons")
+                --your weapon order is reversed, I suppose I could "reset" it here
+                --you technically can investiate in any weapon order, so this isn't necessary 
+                --either way, we need to back out one screen 
+                TheVba.Press("B", 60)
                 return combatWindows
             end
         end
+        --would put an if statement for 2 range (and following that, 3 range) here
     end
 end
 
