@@ -394,8 +394,8 @@ function Investigate(map, Unit)
     --]]
 
     local enemiesOneRange = 0
-    local enemiesOneOrTwoRange = 0
     local enemiesTwoRange = 0
+    local enemiesOneOrTwoRange = 0
 
     --Map Boundries
     topBound = 1
@@ -574,90 +574,103 @@ function Investigate(map, Unit)
                     canAttack = true
                 end
             end
-            --by now, I should know if I can attack (based on the aformentioned bool)
-            if(canAttack)
-            then
-                --enter the usable weapon menu
-                TheVba.Press("A", 60)
+        end
 
-                --loop through each weapon that can attack (which isn't a list of all weapons in your inventory)
-                --KNOWN BUG: a Paladin -can- have an iron bow in his inventory... which has a range value of 2
-                --a Paladin can never use a bow in combat, but that range is still "valid"
-                --SOLUTION FOR LATER: implement class weapon ranks and weapons' ranks
-
-                --for now, assuming the usable weapon menu will be the same as your weapon list
-                --NOT TRUE all the time, but for now it's good enough
-                for i = 1, myWeapons, 1
-                do
-                    --These addresses hold the currently hovered over item
-                    --[[
-                        0x0203A40E <- Arbitrarily chose this one
-                        0x0203A438
-                        0x0203A43A
-                    --]]
-
-                    local currWeapon = memory.readbyte(0x0203A40E)
-                    local currRange = TheCharData.GetWeaponRange(currWeapon)
-                    
-                    --local k = i --used as a counter for debugging printing tables 
-                    if(currRange == 1 or currRange == 3)
-                    then
-                        --we're entering the combat window
-                        TheVba.Press("A", 60)
-                        tempEnemiesOneRange = enemiesOneRange
-                        while(tempEnemiesOneRange > 0)
-                        do
-                            local tempCombatWindow = {}
-                            table.insert(tempCombatWindow, aCombatWindow)
-                            --Recall: the combat window table is listed above this function
-                            --hp, dmg, hit, spd
-                            tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
-                            tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
-                            tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
-                            tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
-                            tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
-                            tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
-                            tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
-                            tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
-                            tempCombatWindow[9] = memory.readbyte(Unit[20]) --player selected weapon
-                            table.insert(combatWindows, tempCombatWindow)
-                            --we can't leave the combat window just yet (there might be more adj enemies)
-                            --when you see a combat window, you can simply press right (or left) to go to the next one
-                            --but we can decrement this by 1
-                            tempEnemiesOneRange = tempEnemiesOneRange - 1
-                            --move it to the right (if there is only 1 enemy, this doesn't even do anything)
-                            --likewise, if it's the last enemy, we press right to cycle to the original target
-                            --this "wastes" an input if we were being optimal
-                            TheVba.Press("right", 60)
-                            --k = k + 1
-                        end
-                        --by now, all the enemies in one range have been accounted for the i'th weapon
-                        --exit the combat window
-                        TheVba.Press("B", 60)
-                        --cycle through the weapons
-                        for j = 1, i, 1
-                        do
-                            TheVba.Press("down", 60)
-                        end
-                        --the cursor is now on the next weapon
-                    end
+        if(enemiesTwoRange > 0)
+        then
+            for i = 1, myWeapons, 1
+            do
+                if(myRanges[i] == 2 or myRanges[i] == 3)
+                then
+                    canAttack = true
                 end
-                --all weapons have been cycled through
-                --your weapon order is reversed, I suppose I could "reset" it here
-                --you technically can investiate in any weapon order, so this isn't necessary 
-                --either way, we need to back out one screen 
-                TheVba.Press("B", 60)
-                --return combatWindows
-                enemiesOneRange = 0
             end
         end
 
+        --by now, I should know if I can attack (based on the aformentioned bool)
+        if(canAttack)
+        then
+            --enter the usable weapon menu
+            TheVba.Press("A", 60)
+        end
+
+        --loop through each weapon that can attack (which isn't a list of all weapons in your inventory)
+        --KNOWN BUG: a Paladin -can- have an iron bow in his inventory... which has a range value of 2
+        --a Paladin can never use a bow in combat, but that range is still "valid"
+        --SOLUTION FOR LATER: implement class weapon ranks and weapons' ranks
+
+        --for now, assuming the usable weapon menu will be the same as your weapon list
+        --NOT TRUE all the time, but for now it's good enough
         
-        --guarantee kick out for loops
-        enemiesOneRange = 0
-        enemiesTwoRange = 0
-        enemiesOneOrTwoRange = 0
-        --would put an if statement for other ranges here?
+        for i = 1, myWeapons, 1
+        do
+            --These addresses hold the currently hovered over item
+            --[[
+                0x0203A40E <- Arbitrarily chose this one
+                0x0203A438
+                0x0203A43A
+            --]]
+
+            local currWeapon = memory.readbyte(0x0203A40E)
+            local currRange = TheCharData.GetWeaponRange(currWeapon)
+
+            if(currRange == 1)
+            then
+                --enter the combat window
+                TheVba.Press("A", 60)
+                for j = 1, enemiesOneRange, 1
+                do
+                    local tempCombatWindow = {}
+                    table.insert(tempCombatWindow, aCombatWindow)
+                    --Grab the temp addresses and put them into a table
+                    tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
+                    tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
+                    tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
+                    tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
+                    tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
+                    tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
+                    tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
+                    tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                    tempCombatWindow[9] = memory.readbyte(Unit[20]) --player selected weapon
+                    --then put them into a table of all the combat windows
+                    table.insert(combatWindows, tempCombatWindow)
+                    --cylce to the next enemy 
+                    TheVba.Press("right", 60)
+                end
+                --back out of this weapon
+                TheVba.Press("B", 60)
+            elseif(currRange == 3)
+            then
+                --enter the combat window
+                TheVba.Press("A", 60)
+                for j = 1, enemiesOneOrTwoRange, 1
+                do
+                    local tempCombatWindow = {}
+                    table.insert(tempCombatWindow, aCombatWindow)
+                    --Grab the temp addresses and put them into a table
+                    tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
+                    tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
+                    tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
+                    tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
+                    tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
+                    tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
+                    tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
+                    tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                    tempCombatWindow[9] = memory.readbyte(Unit[20]) --player selected weapon
+                    --then put them into a table of all the combat windows
+                    table.insert(combatWindows, tempCombatWindow)
+                    --cylce to the next enemy 
+                    TheVba.Press("right", 60)
+                end
+                --back out of this weapon
+                TheVba.Press("B", 60)
+            end
+            --cycle through the weapons
+            for j = 1, i, 1
+            do
+                TheVba.Press("down", 60)
+            end
+        end
     end
     return combatWindows
 end
