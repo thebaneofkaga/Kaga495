@@ -371,21 +371,10 @@ function Investigate(map, Unit)
 
     --table to hold all the combat window statistics when this gets returned
     --For now, only implementing the melee adj
-    --combatWindows[1]:  adjT
-    --combatWindows[2]:  adjR
-    --combatWindows[3]:  adjB
-    --combatWindows[4]:  adjL
-    --combatWindows[5]:  adjTT
-    --combatWindows[6]:  adjTR
-    --combatWindows[7]:  adjRR
-    --combatWindows[8]:  adjBR
-    --combatWindows[9]:  adjBB
-    --combatWindows[10]: adjBL
-    --combatWindows[11]: adjLL
-    --combatWindows[12]: adjTL
     local combatWindows = {}
 
-    myX = memory.readbyte(Unit[7])
+    --have to know where I am to know what enemies are near me
+    myX = memory.readbyte(Unit[7]) --Recall: horz and vert positions
     myY = memory.readbyte(Unit[8])
 
     --Recall: the keys for map is the row; the keys for map[row] is the col
@@ -404,9 +393,9 @@ function Investigate(map, Unit)
 
     --]]
 
-    enemiesOneRange = 0
-    enemiesOneOrTwoRange = 0
-    enemiesTwoRange = 0
+    local enemiesOneRange = 0
+    local enemiesOneOrTwoRange = 0
+    local enemiesTwoRange = 0
 
     --Map Boundries
     topBound = 1
@@ -534,6 +523,19 @@ function Investigate(map, Unit)
         end
     end
 
+    --this is 2 tiles to the left
+    if(myX-1 < leftBound)
+    then
+        adjLL = {}
+    else
+        adjLL = map[myY+1][myX-1]
+        if(adjLL[2] == 2)
+        then
+            enemiesTwoRange = enemiesTwoRange + 1
+            enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
+        end
+    end 
+
     --this is 1 tile to the left and 1 tile up
     if(myX < leftBound or myY < topBound)
     then
@@ -552,8 +554,8 @@ function Investigate(map, Unit)
 
     --if there are ANY enemies you CAN attack, investiage their combat windows
     --Note: even enemies you can't attack are in these variables, but we'll ignore them if you can't attack them
-    while(enemiesOneRange > 0 or enemiesTwoRange > 0 or enemiesOneOrTwoRange > 0)
-    do
+    if(enemiesOneRange > 0 or enemiesTwoRange > 0 or enemiesOneOrTwoRange > 0)
+    then
         --first check adj enemies
         if(enemiesOneRange > 0)
         then
@@ -587,8 +589,18 @@ function Investigate(map, Unit)
                 --NOT TRUE all the time, but for now it's good enough
                 for i = 1, myWeapons, 1
                 do
+                    --These addresses hold the currently hovered over item
+                    --[[
+                        0x0203A40E <- Arbitrarily chose this one
+                        0x0203A438
+                        0x0203A43A
+                    --]]
+
+                    local currWeapon = memory.readbyte(0x0203A40E)
+                    local currRange = TheCharData.GetWeaponRange(currWeapon)
+                    
                     --local k = i --used as a counter for debugging printing tables 
-                    if(myRanges[i] == 1 or myRanges[i] == 3)
+                    if(currRange == 1 or currRange == 3)
                     then
                         --we're entering the combat window
                         TheVba.Press("A", 60)
@@ -607,6 +619,7 @@ function Investigate(map, Unit)
                             tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
                             tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
                             tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                            tempCombatWindow[9] = memory.readbyte(Unit[20]) --player selected weapon
                             table.insert(combatWindows, tempCombatWindow)
                             --we can't leave the combat window just yet (there might be more adj enemies)
                             --when you see a combat window, you can simply press right (or left) to go to the next one
@@ -634,11 +647,19 @@ function Investigate(map, Unit)
                 --you technically can investiate in any weapon order, so this isn't necessary 
                 --either way, we need to back out one screen 
                 TheVba.Press("B", 60)
-                return combatWindows
+                --return combatWindows
+                enemiesOneRange = 0
             end
         end
-        --would put an if statement for 2 range (and following that, 3 range) here
+
+        
+        --guarantee kick out for loops
+        enemiesOneRange = 0
+        enemiesTwoRange = 0
+        enemiesOneOrTwoRange = 0
+        --would put an if statement for other ranges here?
     end
+    return combatWindows
 end
 
 M.SelectUnit = SelectUnit

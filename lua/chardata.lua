@@ -471,6 +471,41 @@ function GetUnitRange(Unit)
     return myRanges
 end
 
+function GetWeaponRange(currItem)
+    --1 Range Weapons
+        --[[
+            0x01: Iron Sword
+            0x03: Steel Sword
+            0x09: Rapier
+            0x16: Steel Lance
+            0x1F: Iron Axe
+            0x20: Steel Axe
+        --]]
+    if(currItem == 0x01 or currItem == 0x03 or currItem == 0x09 or currItem == 0x16 or currItem == 0x1F or currItem == 0x20)
+    then
+        myRange = 1
+
+    --2 Range Weapons
+        --[[
+            0x2C: Iron Bow
+        --]]
+    elseif(currItem == 0x2C)
+    then
+        myRange = 2
+
+    --1 or 2 Range Weapons
+        --[[
+            0x1C: Javelin
+            0x28: Hand Axe
+        --]]
+    elseif(currItem == 0x1C or currItem == 0x28)
+    then
+        myRange = 3
+    end
+    
+    return myRange
+end
+
 --DisplayAllUnits(PlayerUnits, EnemyUnits, Boss)
 
 M.PlayerUnits = PlayerUnits
@@ -483,5 +518,6 @@ M.Boss = Boss
 M.PrintTable = PrintTable
 M.addUnitsToMap = addUnitsToMap
 M.GetUnitRange = GetUnitRange
+M.GetWeaponRange = GetWeaponRange
 
 return M
