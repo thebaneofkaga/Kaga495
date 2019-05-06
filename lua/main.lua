@@ -16,6 +16,6 @@ map = charData.addUnitsToMap(map)
 -- dist = BFS.getLengthOfPath(path, map, classData.GetClassType(memory.readword(charData.PlayerUnits[1][2])))
 -- print(dist)
 -- print(memory.readword(charData.PlayerUnits[2][2]))
-moves = heuristic.findMoves(charData.PlayerUnits[1], map, classData.GetClassType( memory.readword(charData.PlayerUnits[1][2])) )
+moves = heuristic.findMoves(charData.PlayerUnits[2], map, classData.GetClassType( memory.readword(charData.PlayerUnits[2][2])) )
 
 

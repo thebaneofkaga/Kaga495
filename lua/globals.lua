@@ -10,6 +10,16 @@ function empty(self)
     return true
 end
 
+function signOf(int)
+    if int > 0 then
+        return 1
+    elseif int < 0 then
+        return -1
+    else
+        return 0
+    end
+end
+
 --Source: https://gist.github.com/hashmal/874792
 
 --An interesting print function I found for Lua
@@ -28,5 +38,6 @@ end
 
 M.tprint = tprint
 M.empty = empty
+M.signOf = signOf
 
 return M

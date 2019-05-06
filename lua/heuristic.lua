@@ -5,6 +5,7 @@ local TheClassData = require("classdata")
 local mapReader = require("mapReader")
 local TheTrueHit = require("truehit")
 local BFS = require("2pointBFS")
+local globals = require("globals")
 
 function findMoves(character, map, movement)
     allPossibleMovement = {}
@@ -28,7 +29,8 @@ function findMoves(character, map, movement)
                 print(BFS.getLengthOfPath(path, map, movement))
                 if BFS.getLengthOfPath(path, map, movement) <= movement[1]
                 -- math.abs(yInc) + math.abs(xInc) == movement[1] 
-                and ( BFS.getLengthOfPath(path, map, movement) == movement[1]
+                and ( maxMovement(yInc, xInc, memory.readbyte(character[8]) + 1, memory.readbyte(character[7]) + 1, map, 
+                      BFS.getLengthOfPath(path, map, movement), movement) -- BFS.getLengthOfPath(path, map, movement) == movement[1]
                 or isOfInterest(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map)) -- is worth checking out
                 then
                     print("found: " .. yInc + memory.readbyte(character[8]) + 1 .. ", " .. xInc + memory.readbyte(character[7]) + 1)
@@ -46,16 +48,37 @@ function findMoves(character, map, movement)
     
 end
 
-function notImpassible(y, x, map)
-    if(map[y][x][1] == mapReader.stringToShort["Cliff"]
-    or map[y][x][1] == mapReader.stringToShort["Peak"]
-    or map[y][x][1] == mapReader.stringToShort["---"])
-    then
-        return false
+function maxMovement(yChange, xChange, yBase, xBase, map, pathLength, movement) 
+    y = yBase + yChange
+    x = xBase + xChange
+    if pathLength == movement[1] then
+        return true
+    elseif pathLength < movement[1] then
+        if  BFS.getLengthOfPath(
+            BFS.BFS(xBase, yBase, xChange + xBase, yChange + yBase + globals.signOf(yChange), map, movement),
+            map, movement) > movement[1]        
+        then
+            return true
+        elseif BFS.getLengthOfPath(
+            BFS.BFS(xBase, yBase, xChange + xBase + globals.signOf(xChange), yChange + yBase, map, movement),
+            map, movement) > movement[1] 
+        then
+            return true
+        end
     end
-
-    return true
+    return false
 end
+
+-- function notImpassible(y, x, map)
+--     if(map[y][x][1] == mapReader.stringToShort["Cliff"]
+--     or map[y][x][1] == mapReader.stringToShort["Peak"]
+--     or map[y][x][1] == mapReader.stringToShort["---"])
+--     then
+--         return false
+--     end
+
+--     return true
+-- end
 
 function isOfInterest(y, x, map)
 
@@ -305,12 +328,12 @@ end
 function getNextCharMove(character, slotNum, map)
     move = ""
     print("running next move for slot " .. slotNum)
-
+    moves = {}
     terrain = {}
     terrain = TheClassData.GetClassType(character[2])
     print("loaded in terrain movement")
     -- TheCharData.tprint(map)
-    findMoves(character, map, terrain)
+    moves = findMoves(character, map, terrain)
 
     -- find what moves slot could take
 

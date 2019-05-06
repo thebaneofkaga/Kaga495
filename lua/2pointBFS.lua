@@ -116,6 +116,9 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     or startX  > #map[startY]
     or endY > #map
     or endX > #map[endY]
+    or map[endY][endX][2] == 1
+    or map[endY][endX][2] == 2
+    or map[endY][endX][2] == 3
     then
         return {}
     end
@@ -161,7 +164,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
-                and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
+                and map[tempStartPY[1]][tempStartPY[2]][2] ~= 2
+                and map[tempStartPY[1]][tempStartPY[2]][2] ~= 3
+                then
                 -- and not discovered(startDiscovered, tempStartPY)
                 -- and not discovered(startSearch, tempStartPY) then
                 -- print("not impassible")
@@ -203,6 +209,8 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 if map[tempStartNY[1]][tempStartNY[2]][1] ~= reader.stringToShort["Peak"]
                 and map[tempStartNY[1]][tempStartNY[2]][1] ~= reader.stringToShort["Cliff"]
                 and map[tempStartNY[1]][tempStartNY[2]][1] ~= reader.stringToShort["---"] 
+                and map[tempStartNY[1]][tempStartNY[2]][2] ~= 2
+                and map[tempStartNY[1]][tempStartNY[2]][2] ~= 3
                 then
                 -- and not discovered(startDiscovered, tempStartNY) 
                 -- and not discovered(startSearch, tempStartNY) then
@@ -241,7 +249,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempStartPX[1]][tempStartPX[2]][1] ~= reader.stringToShort["Peak"]
                 and map[tempStartPX[1]][tempStartPX[2]][1] ~= reader.stringToShort["Cliff"] 
-                and map[tempStartPX[1]][tempStartPX[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempStartPX[1]][tempStartPX[2]][1] ~= reader.stringToShort["---"] 
+                and map[tempStartPX[1]][tempStartPX[2]][2] ~= 2
+                and map[tempStartPX[1]][tempStartPX[2]][2] ~= 3
+                then
                 -- and not discovered(startDiscovered, tempStartPX)
                 -- and not discovered(startSearch, tempStartPX) then
                     if not discovered(startDiscovered, tempStartPX)
@@ -278,7 +289,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempStartNX[1]][tempStartNX[2]][1] ~= reader.stringToShort["Peak"]
                 and map[tempStartNX[1]][tempStartNX[2]][1] ~= reader.stringToShort["Cliff"]
-                and map[tempStartNX[1]][tempStartNX[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempStartNX[1]][tempStartNX[2]][1] ~= reader.stringToShort["---"] 
+                and map[tempStartNX[1]][tempStartNX[2]][2] ~= 2
+                and map[tempStartNX[1]][tempStartNX[2]][2] ~= 3
+                then
                 -- and not discovered(startDiscovered, tempStartNX) 
                 -- and not discovered(startSearch, tempStartNX) then
                     if not discovered(startDiscovered, tempStartNX) 
@@ -344,7 +358,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempEndPY[1]][tempEndPY[2]][1] ~= reader.stringToShort["Peak"] 
                 and map[tempEndPY[1]][tempEndPY[2]][1] ~= reader.stringToShort["Cliff"]
-                and map[tempEndPY[1]][tempEndPY[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempEndPY[1]][tempEndPY[2]][1] ~= reader.stringToShort["---"]
+                and map[tempEndPY[1]][tempEndPY[2]][2] ~= 2
+                and map[tempEndPY[1]][tempEndPY[2]][2] ~= 3
+                then
                 -- and not discovered(endDiscovered, tempEndPY) 
                 -- and not discovered(endSearch, tempEndPY) 
                     if not discovered(endDiscovered, tempEndPY)
@@ -376,7 +393,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempEndNY[1]][tempEndNY[2]][1] ~= reader.stringToShort["Peak"]
                 and map[tempEndNY[1]][tempEndNY[2]][1] ~= reader.stringToShort["Cliff"]
-                and map[tempEndNY[1]][tempEndNY[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempEndNY[1]][tempEndNY[2]][1] ~= reader.stringToShort["---"] 
+                and map[tempEndNY[1]][tempEndNY[2]][2] ~= 2
+                and map[tempEndNY[1]][tempEndNY[2]][2] ~= 3
+                then
                 -- and not discovered(endDiscovered, tempEndNY) 
                 -- and not discovered(endSearch, tempEndNY) then 
                     if not discovered(endDiscovered, tempEndNY)
@@ -408,7 +428,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempEndPX[1]][tempEndPX[2]][1] ~= reader.stringToShort["Peak"]
                 and map[tempEndPX[1]][tempEndPX[2]][1] ~= reader.stringToShort["Cliff"] 
-                and map[tempEndPX[1]][tempEndPX[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempEndPX[1]][tempEndPX[2]][1] ~= reader.stringToShort["---"] 
+                and map[tempEndPX[1]][tempEndPX[2]][2] ~= 2
+                and map[tempEndPX[1]][tempEndPX[2]][2] ~= 3
+                then
                 -- and not discovered(endDiscovered, tempEndPX) 
                 -- and not discovered(endSearch, tempEndPX) then 
                     if not discovered(endDiscovered, tempEndPX)
@@ -440,7 +463,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- within bounds
                 if map[tempEndNX[1]][tempEndNX[2]][1] ~= reader.stringToShort["Peak"]
                 and map[tempEndNX[1]][tempEndNX[2]][1] ~= reader.stringToShort["Cliff"]
-                and map[tempEndNX[1]][tempEndNX[2]][1] ~= reader.stringToShort["---"] then
+                and map[tempEndNX[1]][tempEndNX[2]][1] ~= reader.stringToShort["---"] 
+                and map[tempEndNX[1]][tempEndNX[2]][2] ~= 2
+                and map[tempEndNX[1]][tempEndNX[2]][2] ~= 3
+                then
                 -- and not discovered(endDiscovered, tempEndNX) 
                 -- and not discovered(endSearch, tempEndNX) then 
                     if not discovered(endDiscovered, tempEndNX)
