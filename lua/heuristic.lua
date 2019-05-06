@@ -233,6 +233,14 @@ function calculateScore(character, map)
         adjBR = map[myY+2][myX]
     end
 
+    --this is 2 tiles to the left
+    if(myX-1 < leftBound)
+    then
+        adjLL = {}
+    else
+        adjLL = map[myY+1][myX-1]
+    end 
+
     --this is 1 tile to the left and 1 tile up
     if(myX < leftBound or myY < topBound)
     then
