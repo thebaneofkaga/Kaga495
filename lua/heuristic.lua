@@ -22,7 +22,8 @@ function findMoves(character, map, movement)
         for xInc = -1* movement[1], movement[1]  do
             -- if (math.abs(yInc) + math.abs(xInc) <= movement[1] )
             -- then
-                print(yInc .. ", " .. xInc)
+            print("-----------------------------------------------start-----------------------------------------------")
+                print(yInc + memory.readbyte(character[8])+1 .. ", " .. xInc + memory.readbyte(character[7])+1)
                 path = BFS.BFS(memory.readbyte(character[7])+1, memory.readbyte(character[8])+1,
                 xInc + memory.readbyte(character[7]) + 1, yInc + memory.readbyte(character[8]) + 1,
                 map, movement)
@@ -37,13 +38,14 @@ function findMoves(character, map, movement)
                     table.insert(finalList, {yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1})
                 end
             -- end
+            print("-----------------------------------------------end--------------------------------------------------")
         end
-        print("end of for")
+        -- print("end of for")
     end
     print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
     print(movement[1])
 
-    tprint(finalList)
+    -- tprint(finalList)
     return finalList
     
 end
@@ -52,17 +54,20 @@ function maxMovement(yChange, xChange, yBase, xBase, map, pathLength, movement)
     y = yBase + yChange
     x = xBase + xChange
     if pathLength == movement[1] then
+        print(y.. ", ".. x .. "is max range")
         return true
     elseif pathLength < movement[1] then
         if  BFS.getLengthOfPath(
             BFS.BFS(xBase, yBase, xChange + xBase, yChange + yBase + globals.signOf(yChange), map, movement),
             map, movement) > movement[1]        
         then
+            print(y.. ", ".. x .. "is max possible movement")
             return true
         elseif BFS.getLengthOfPath(
             BFS.BFS(xBase, yBase, xChange + xBase + globals.signOf(xChange), yChange + yBase, map, movement),
             map, movement) > movement[1] 
         then
+            print(y.. ", ".. x .. "is max possible movement")
             return true
         end
     end
@@ -81,27 +86,33 @@ end
 -- end
 
 function isOfInterest(y, x, map)
+    
 
     if map[y][x][1] == mapReader.stringToShort["Forest"]
     or map[y][x][1] == mapReader.stringToShort["Fort"]
     then
+        print(y .. ", " .. x .. " is of interest")
         return true
     end
     if y+1 <= #map and 
     (map[y+1][x][2] == 2 or map[y+1][x][2] == 3)
     then
+        print(y .. ", " .. x .. " has enemy")
         return true
     elseif y-1 > 0 and 
     (map[y-1][x][2] == 2 or map[y-1][x][2] == 3)
     then
+        print(y .. ", " .. x .. " has enemy")
         return true
     elseif x+1 <= #map[y] and 
     (map[y][x+1][2] == 2 or map[y][x+1][2] == 3)
     then
+        print(y .. ", " .. x .. " has enemy")
         return true
     elseif x-1 > 0 and 
     (map[y][x-1][2] == 2 or map[y][x-1][2] == 3)
     then
+        print(y .. ", " .. x .. " has enemy")
         return true
     end
         
@@ -335,6 +346,8 @@ function getNextCharMove(character, slotNum, map)
     -- TheCharData.tprint(map)
     moves = findMoves(character, map, terrain)
 
+    -- just for testing, remove later
+    calculateScore()
     -- find what moves slot could take
 
     -- calculate score for each move
