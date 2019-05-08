@@ -7,20 +7,20 @@ local TheActions = require("actions")
 local globals = require("globals")
 
 
-map = mapReader.map;
+map = mapReader.setupMap();
 map = charData.addUnitsToMap(map)
 
 -- charData.tprint(map)
 
-heuristic.GroupHeuristic(charData.PlayerUnits, map)
+map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 
 -- move = heuristic.getNextCharMove(charData.PlayerUnits[2], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[2][2])))
 -- globals.tprint(move)
 -- TheActions.Investigate(map, charData.PlayerUnits[2])
 
 
-myUnit = charData.PlayerUnits[2] --should be Marcus (11)
-TheActions.Attack(myUnit, "3", 7, 7)
+-- myUnit = charData.PlayerUnits[2] --should be Marcus (11)
+-- TheActions.Attack(myUnit, "3", 7, 7)
 -- myWindows = TheActions.Investigate(map, myUnit)
 
 -- charData.tprint(myWindows)

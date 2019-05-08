@@ -30,37 +30,39 @@ shortToString["t"] = "Fort"
 shortToString["g"] = "Throne"
 
 
+function setupMap()
+    rows = 12
+    cols = 18
+    map = {}
 
-rows = 12
-cols = 18
-map = {}
-
-for i=1, rows, 1 
-do
-    map[i] = {}
-    for j=1, cols, 1 
+    for i=1, rows, 1 
     do
-        map[i][j] = {}
+        map[i] = {}
+        for j=1, cols, 1 
+        do
+            map[i][j] = {}
+        end
     end
-end
 
-file = io.open("11.txt", "r")
+    file = io.open("11.txt", "r")
 
-io.input(file)
+    io.input(file)
 
---stringname:sub(5,5) gets the 5th char in the string
+    --stringname:sub(5,5) gets the 5th char in the string
 
-for i=1, rows, 1
-do
-    map[i] = {}
-    the_row = io.read()
-    for j=1, cols, 1
+    for i=1, rows, 1
     do
-        map[i][j] = {the_row:sub(j,j), 0}
+        map[i] = {}
+        the_row = io.read()
+        for j=1, cols, 1
+        do
+            map[i][j] = {the_row:sub(j,j), 0}
+        end
     end
-end
 
-io.close(file)
+    io.close(file)
+    return map
+end
 
 function QuickPrint(T)
     for i,v in ipairs(T) 
@@ -74,5 +76,6 @@ end
 M.map = map;
 M.shortToString = shortToString;
 M.stringToShort = stringToShort;
+M.setupMap = setupMap;
 
 return M;

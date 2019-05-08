@@ -120,7 +120,18 @@ function isOfInterest(y, x, map)
         
     return false
 end
-
+--[[
+        returnCode = {
+            score,
+            x for move, based on 1,1
+            y for move, based on 1,1
+            attack / wait,
+            weapon to attack with,
+            enemy to attack x, based on 0,0
+            enemy to attack y based on 0,0
+        }
+        if wait, then the last two are nil
+    ]]
 --assumes that the character has already moved onto a tile
 --for now, assuming 1 range weapons only
 --need the character's slot (to know his X,Y coordinates, stats, and equipment)
@@ -464,6 +475,7 @@ end
 
 function GroupHeuristic(tableOfCharacters, map)
     local moves = {};
+    local slotsMoved = {};
 
     TheCharData.PrintTable(tableOfCharacters)
 
@@ -474,16 +486,61 @@ function GroupHeuristic(tableOfCharacters, map)
         end
     end
     globals.tprint(moves)
-
-
+    
+    while #slotsMoved < #tableOfCharacters - 1 do
+        highestScore = 0
+        slotToMove = 0
+        -- get highest score
+        for i,v in ipairs(moves) do
+            if v[1] > highestScore then
+                highestScore = v[1]
+                slotToMove = i
+            end
+        end
+        -- execute move
+        for i = 1, slotToMove - 1 do 
+            TheVBA.Press("L", 30)
+        end
+        print("move to execute slot " .. slotToMove)
+        globals.tprint(moves[slotToMove])
+        executeMove(tableOfCharacters[slotToMove], moves[slotToMove])
+        -- insert to slotsMoved
+        table.insert(slotsMoved, i)
+        -- re-evaluate
+        for i = slotToMove, #tableOfCharacters - 1, 1 do
+            if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0" then
+                TheVBA.Press("L", 30)
+            end
+        end
+        -- print("---------------------------------------------------------------------------------")
+        -- TheCharData.PrintTable(TheCharData.EnemyUnits)
+        -- print("---------------------------------------------------------------------------------")
+        map = mapReader.setupMap()
+        map = TheCharData.addUnitsToMap(map)
+        moves = {}
+        -- globals.tprint(map)
+        for i,v in ipairs(tableOfCharacters) do
+            if string.format("%x", memory.readword(v[2]) ) ~= "0" 
+            and string.format("%x", memory.readbyte(v[5]) ) == "0"
+            then
+                moves[i] = getNextCharMove(v, i, map)
+                TheVBA.Press("L", 60)
+            end
+        end
+    end
+    return map
 end
 
--- function executeMove(character, turn)
---     actions.Move(character, turn[2] - 1, turn[3] - 1)
---     if(turn[3] == "attack") then
---         actions.Attack()
---     end
--- end
+function executeMove(character, turn)
+    actions.Move(character, turn[2] - 1, turn[3] - 1)
+    if(turn[4] == "attack") then
+        actions.Attack(character, turn[5], turn[6], turn[7])
+    elseif(turn[4] == "wait") then
+        actions.Wait()
+    else
+        print("FUCK!! HOW DID WE GET HERE?!?!-----------------------------------------------")
+    end
+end
 --[[ 
 GroupHeuristic(TheCharData.PlayerUnits);
 getNextCharMove(TheCharData.PlayerUnits[1]);

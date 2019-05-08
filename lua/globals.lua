@@ -36,8 +36,19 @@ function tprint (tbl, indent)
     end
 end
 
+function elementNotInTable(element, table)
+    for i,v in ipairs(table) do
+        print(element .. " == " .. v)
+        if v == element then
+            return false
+        end
+    end
+    return true
+end
+
 M.tprint = tprint
 M.empty = empty
 M.signOf = signOf
+M.elementNotInTable = elementNotInTable
 
 return M

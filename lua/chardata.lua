@@ -387,7 +387,9 @@ function addUnitsToMap(map)
     end
     for i,v in ipairs(EnemyUnits) do
         print(memory.readbyte(v[8]) .. ", " .. memory.readbyte(v[7]) )
-        if ( memory.readword(v[2]) ~= 0x0000) then
+        if ( string.format("%x",memory.readword(v[1]) ) ~= "0") then
+            -- tprint(v)
+            -- PrintTable(v)
             map[ memory.readbyte(v[8]) + 1 ][ memory.readbyte(v[7]) + 1][2] = 2
         else
             print("no more units")
