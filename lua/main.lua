@@ -12,8 +12,10 @@ map = charData.addUnitsToMap(map)
 
 -- charData.tprint(map)
 
-heuristic.getNextCharMove(charData.PlayerUnits[2], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[2][2])))
+heuristic.GroupHeuristic(charData.PlayerUnits, map)
 
+-- move = heuristic.getNextCharMove(charData.PlayerUnits[2], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[2][2])))
+-- globals.tprint(move)
 -- TheActions.Investigate(map, charData.PlayerUnits[2])
 
 

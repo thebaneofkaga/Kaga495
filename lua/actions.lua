@@ -296,8 +296,8 @@ function WaitOutTheEnemy()
         0x80: Enemy Phase 
     --]]
     --Because you can only take control on player phase, being in the neutral phase is equivalent to enemy phase when waiting
-
-    while(1)
+    notMyTurn = true
+    while(notMyTurn)
     do 
         hexPhase = memory.readbyte(phaseBase)
         if(hexPhase == 0x80 or hexPhase == 0x40)
@@ -307,6 +307,7 @@ function WaitOutTheEnemy()
             TheVba = NextInput(150)
         else
             --print("My turn! Waiting 150 frames!")
+            notMyTurn = false
         end
     end
 end
@@ -681,7 +682,7 @@ function Investigate(map, Unit)
 end
 
 function returnToStart()
-    for i = 1, 10 do
+    for i = 1, 2 do
         TheVba.Press("B", 30)
     end
 end

@@ -7,6 +7,7 @@ local TheTrueHit = require("truehit")
 local BFS = require("2pointBFS")
 local globals = require("globals")
 local actions = require("actions")
+local TheVBA = require("vbaF")
 
 function findMoves(character, map, movement)
     allPossibleMovement = {}
@@ -43,10 +44,10 @@ function findMoves(character, map, movement)
         end
         -- print("end of for")
     end
-    print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
-    print(movement[1])
+    -- print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
+    -- print(movement[1])
 
-    tprint(finalList)
+    -- tprint(finalList)
     return finalList
     
 end
@@ -129,12 +130,12 @@ function calculateScore(x, y, character, map)
     --[[
         returnCode = {
             score,
-            x for move,
-            y for move,
+            x for move, based on 1,1
+            y for move, based on 1,1
             attack / wait,
             weapon to attack with,
-            enemy to attack x,
-            enemy to attack y
+            enemy to attack x, based on 0,0
+            enemy to attack y based on 0,0
         }
         if wait, then the last two are nil
     ]]
@@ -295,9 +296,9 @@ function calculateScore(x, y, character, map)
     -- find best attack window
     if not globals.empty(windows) then
         
-        globals.tprint(windows)
+        -- globals.tprint(windows)
         bestWindow = getBestWindow(windows)
-        globals.tprint(bestWindow)
+        -- globals.tprint(bestWindow)
         returnCode[4] = "attack"
         returnCode[5] = bestWindow[9]
         returnCode[6] = bestWindow[10]
@@ -436,41 +437,52 @@ function getBestWindow(windows)
 end
 
 function getNextCharMove(character, slotNum, map)
-    moveX = 0
-    moveY = 0
-    score = 0
-    move = ""
+    move = {0}
     print("running next move for slot " .. slotNum)
     moves = {}
     terrain = {}
     terrain = TheClassData.GetClassType(memory.readword(character[2]))
     -- print("loaded in terrain movement")
     -- TheCharData.tprint(map)
-    moves = findMoves(character, map, terrain)
-    -- globals.tprint(moves)
     
     -- find what moves slot could take
+    moves = findMoves(character, map, terrain)
+    -- calculate score for each move
     for i,v in ipairs(moves) do
         tempCode = calculateScore(v[2], v[1], character, map)
-        print(v[2] .. ", " .. v[1] .. ": " .. tempCode[1])
+        if tempCode[1] > move[1] then
+            move = tempCode
+        end
     end
-    -- calculate score for each move
-
+    --     print(v[2] .. ", " .. v[1] .. ": ")
+    --     tprint(tempCode)
+    -- end
     
 
     return move;
 end
 
-function GroupHeuristic(tableOfCharacters)
-    move = {};
+function GroupHeuristic(tableOfCharacters, map)
+    local moves = {};
 
     TheCharData.PrintTable(tableOfCharacters)
 
     for i,v in ipairs(tableOfCharacters) do
-        move[i] = getNextCharMove(v)
+        if string.format("%x", memory.readword(v[2]) ) ~= "0" then
+            moves[i] = getNextCharMove(v, i, map)
+            TheVBA.Press("L", 60)
+        end
     end
+    globals.tprint(moves)
 
 
+end
+
+function executeMove(character, turn)
+    actions.Move(character, turn[2] - 1, turn[3] - 1)
+    if(turn[3] == "attack") then
+        actions.Attack()
+    end
 end
 --[[ 
 GroupHeuristic(TheCharData.PlayerUnits);
