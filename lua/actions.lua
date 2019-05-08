@@ -682,7 +682,7 @@ function Investigate(map, Unit)
 end
 
 function returnToStart()
-    for i = 1, 2 do
+    for i = 1, 5 do
         TheVba.Press("B", 30)
     end
 end

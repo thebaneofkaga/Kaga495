@@ -478,12 +478,12 @@ function GroupHeuristic(tableOfCharacters, map)
 
 end
 
-function executeMove(character, turn)
-    actions.Move(character, turn[2] - 1, turn[3] - 1)
-    if(turn[3] == "attack") then
-        actions.Attack()
-    end
-end
+-- function executeMove(character, turn)
+--     actions.Move(character, turn[2] - 1, turn[3] - 1)
+--     if(turn[3] == "attack") then
+--         actions.Attack()
+--     end
+-- end
 --[[ 
 GroupHeuristic(TheCharData.PlayerUnits);
 getNextCharMove(TheCharData.PlayerUnits[1]);
