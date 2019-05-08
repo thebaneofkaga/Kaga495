@@ -19,7 +19,8 @@ heuristic.GroupHeuristic(charData.PlayerUnits, map)
 -- TheActions.Investigate(map, charData.PlayerUnits[2])
 
 
--- myUnit = charData.PlayerUnits[2] --should be Marcus (11)
+myUnit = charData.PlayerUnits[2] --should be Marcus (11)
+TheActions.Attack(myUnit, "3", 7, 7)
 -- myWindows = TheActions.Investigate(map, myUnit)
 
 -- charData.tprint(myWindows)
