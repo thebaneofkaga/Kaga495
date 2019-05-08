@@ -59,7 +59,7 @@ function Move(Unit, LocX, LocY)
         end
     end
 
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 120)
     
 end
 
@@ -347,7 +347,10 @@ aCombatWindow = {
     playerDMG,
     playerHIT,
     --playerCRIT, --see above
-    playerEffSpd
+    playerEffSpd,
+    playerSelectedWeapon,
+    enemyX,
+    enemyY
 }
 
 --no parameters needed
@@ -364,7 +367,7 @@ aCombatWindow = {
 --INTENTIONAL CONCERN!!!: I don't care about the quality of the combat statistic!!! This is by design!!!
 --The only purpose of this function is to populate the variables from those temporary addresses--NOT to decide if it is a good idea
 function Investigate(map, Unit)
-
+    print("entering investigate")
     myRanges = TheCharData.GetUnitRange(Unit)
     --TheCharData.tprint(myRanges)
     myWeapons = #myRanges
@@ -631,7 +634,9 @@ function Investigate(map, Unit)
                     tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
                     tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
                     tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
-                    tempCombatWindow[9] = memory.readbyte(Unit[20]) --player selected weapon
+                    tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
+                    tempCombatWindow[10] = memory.readbyte(0x0203A480)
+                    tempCombatWindow[11] = memory.readbyte(0x0203A481)
                     --then put them into a table of all the combat windows
                     table.insert(combatWindows, tempCombatWindow)
                     --cylce to the next enemy 
@@ -656,7 +661,7 @@ function Investigate(map, Unit)
                     tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
                     tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
                     tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
-                    tempCombatWindow[9] = memory.readbyte(Unit[20]) --player selected weapon
+                    tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
                     --then put them into a table of all the combat windows
                     table.insert(combatWindows, tempCombatWindow)
                     --cylce to the next enemy 
@@ -675,6 +680,12 @@ function Investigate(map, Unit)
     return combatWindows
 end
 
+function returnToStart()
+    for i = 1, 10 do
+        TheVba.Press("B", 30)
+    end
+end
+
 M.SelectUnit = SelectUnit
 M.Move = Move
 M.Attack = Attack
@@ -690,5 +701,6 @@ M.WaitOutTheEnemy = WaitOutTheEnemy
 M.GetTurnCount = GetTurnCount
 M.VisitVillage = VisitVillage
 M.Investigate = Investigate
+M.returnToStart = returnToStart
 
 return M

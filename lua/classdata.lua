@@ -77,7 +77,7 @@ function GetClassType(myClass)
     defaultMov = 5 --this is the standard movement of an unpromoted unit
     classRange = {defaultMov, Terrain}
     myClass = string.format("%x", myClass)
-    print("class value of: " .. myClass)
+    -- print("class value of: " .. myClass)
     --"Foot" units
     --[[
         Each class, according to the slot data, comes in the form of 0xABCD. 

@@ -128,7 +128,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     then
         return {}
     end
-    print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
+    -- print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     table.insert(startSearch, {startY, startX, 0});
     table.insert(endSearch, {endY, endX, terrainInfo[2][reader.shortToString[ map[endY][endX][1]]][4]});
     -- table.insert(endSearch, {endY, endX, 0})
@@ -167,6 +167,8 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             and tempStartPY[2]  <= #map[tempStartPY[1]] then
                 -- print("py within bounds")
                 -- print(tempStartPY[1] .. ", " .. tempStartPY[2])
+                -- print(reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]])
+                -- print(terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4] )
                 -- within bounds
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
@@ -213,6 +215,9 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             if tempStartNY[1] > 0
             and tempStartNY[2] <= #map[tempStartNY[1]] then
                 -- within bounds
+                -- print(tempStartNY[1] .. ", " .. tempStartNY[2])
+                -- print(reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]])
+                -- print(terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4] )
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -255,6 +260,9 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             if tempStartPX[1] <= #map
             and tempStartPX[2] <= #map[tempStartPX[1]] then
                 -- within bounds
+                -- print(tempStartPX[1] .. ", " .. tempStartPX[2])
+                -- print(reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]])
+                -- print(terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4])
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -296,6 +304,9 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
             if tempStartNX[1] <= #map
             and tempStartNX[2] > 0 then
                 -- within bounds
+                -- print(tempStartNX[1] .. ", " .. tempStartNX[2])
+                -- print(reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]])
+                -- print(terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4])
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -527,7 +538,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     path = {}
     centerSpot = getOverlap(startDiscovered, endDiscovered);
     table.insert(path, 1, centerSpot)
-    print(centerSpot[1] .. ", " .. centerSpot[2])
+    -- print(centerSpot[1] .. ", " .. centerSpot[2])
     while(path[1][1] ~= startY or path[1][2] ~= startX) do 
         -- print("in first while")
         next = findNext(startDiscovered, path[1])
@@ -582,7 +593,7 @@ function goalPath(startX, startY, endX, endY, map, terrainInfo)
     then
         return {}
     end
-    print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
+    -- print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     table.insert(startSearch, {startY, startX, 0});
     table.insert(endSearch, {endY, endX, terrainInfo[2][reader.shortToString[ map[endY][endX][1]]][4]});
     -- table.insert(endSearch, {endY, endX, 0})
@@ -648,14 +659,14 @@ function goalPath(startX, startY, endX, endY, map, terrainInfo)
                         if discovered(startDiscovered, tempStartPY) < #startDiscovered and 
                         startDiscovered[discovered(startDiscovered, tempStartPY)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4]
                         then
-                            print("updating: " .. tempStartPY[1] .. ", " .. tempStartPY[2])
+                            -- print("updating: " .. tempStartPY[1] .. ", " .. tempStartPY[2])
                             startDiscovered[discovered(startDiscovered, tempStartPY)][3] = startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4];
                         end
                     elseif discovered(startSearch, tempStartPY) and
                     discovered(startSearch, tempStartPY) < # startSearch and
                     startSearch[ discovered(startSearch, tempStartPY)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4]
                     then
-                        print("updating: " .. tempStartPY[1] .. ", " .. tempStartPY[2])
+                        -- print("updating: " .. tempStartPY[1] .. ", " .. tempStartPY[2])
                         startSearch[discovered(startSearch, tempStartPY)][3] = startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4];
                     
                     end
@@ -689,14 +700,14 @@ function goalPath(startX, startY, endX, endY, map, terrainInfo)
                     discovered(startDiscovered, tempStartNY) < #startDiscovered and 
                     startDiscovered[discovered(startDiscovered, tempStartNY)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4]
                     then
-                        print("updating: " .. tempStartNY[1] .. ", " .. tempStartNY[2])
+                        -- print("updating: " .. tempStartNY[1] .. ", " .. tempStartNY[2])
                         startDiscovered[discovered(startDiscovered, tempStartNY)][3] = startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4]
                     
                     elseif discovered(startSearch, tempStartNY) and
                     discovered(startSearch, tempStartNY) < #startSearch and
                     startSearch[ discovered(startSearch, tempStartNY)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4] 
                     then
-                        print("updating: " .. tempStartNY[1] .. ", " .. tempStartNY[2])
+                        -- print("updating: " .. tempStartNY[1] .. ", " .. tempStartNY[2])
                         startSearch[ discovered(startSearch, tempStartNY)][3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4];
                         
                     end
@@ -731,14 +742,14 @@ function goalPath(startX, startY, endX, endY, map, terrainInfo)
                     discovered(startDiscovered, tempStartPX) < #startDiscovered and 
                     startDiscovered[discovered(startDiscovered, tempStartPX)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4]
                     then
-                        print("updating: " .. tempStartPX[1] .. ", " .. tempStartPX[2])
+                        -- print("updating: " .. tempStartPX[1] .. ", " .. tempStartPX[2])
                         startDiscovered[discovered(startDiscovered, tempStartPX)][3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4];
                         
                     elseif discovered(startSearch, tempStartPX) and
                     discovered(startSearch, tempStartPX) < #startSearch and
                     startSearch[discovered(startSearch, tempStartPX)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4]
                     then
-                        print("updating: " .. tempStartPX[1] .. ", " .. tempStartPX[2])
+                        -- print("updating: " .. tempStartPX[1] .. ", " .. tempStartPX[2])
                         startSearch[discovered(startSearch, tempStartPX)][3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4];
                         
                     end
@@ -774,14 +785,14 @@ function goalPath(startX, startY, endX, endY, map, terrainInfo)
                     discovered(startDiscovered, tempStartNX) < #startDiscovered and 
                     startDiscovered[discovered(startDiscovered, tempStartNX)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4]
                     then
-                        print("updating: ".. tempStartNX[1] .. ", " .. tempStartNX[2])
+                        -- print("updating: ".. tempStartNX[1] .. ", " .. tempStartNX[2])
                         startDiscovered[discovered(startDiscovered, tempStartNX)][3] = startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4]
 
                     elseif discovered(startSearch, tempStartNX) and
                     discovered(startSearch, tempStartNX) < #startSearch and
                     startSearch[discovered(startSearch, tempStartNX)][3] > startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4]
                     then
-                        print("updating: ".. tempStartNX[1] .. ", " .. tempStartNX[2])
+                        -- print("updating: ".. tempStartNX[1] .. ", " .. tempStartNX[2])
                         startSearch[discovered(startSearch, tempStartNX)][3] =  startSearch[1][3] + terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4];
                         
                     end
@@ -981,7 +992,7 @@ function goalPath(startX, startY, endX, endY, map, terrainInfo)
     path = {}
     centerSpot = getOverlap(startDiscovered, endDiscovered);
     table.insert(path, 1, centerSpot)
-    print(centerSpot[1] .. ", " .. centerSpot[2])
+    -- print(centerSpot[1] .. ", " .. centerSpot[2])
     while(path[1][1] ~= startY or path[1][2] ~= startX) do 
         -- print("in first while")
         next = findNext(startDiscovered, path[1])

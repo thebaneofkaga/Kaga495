@@ -6,46 +6,47 @@ local mapReader = require("mapReader")
 local TheTrueHit = require("truehit")
 local BFS = require("2pointBFS")
 local globals = require("globals")
+local actions = require("actions")
 
 function findMoves(character, map, movement)
     allPossibleMovement = {}
     finalList = {}
     round = 0;
-    print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
+    -- print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
     -- this will automatically add all of the max distance
     -- moves. then it will add all moves in the middle that
     -- have something of interest (a forest, a fort, an enemy)
-    print(movement[1])
+    -- print(movement[1])
     
     for yInc = -1* movement[1], movement[1] do
         
         for xInc = -1* movement[1], movement[1]  do
             -- if (math.abs(yInc) + math.abs(xInc) <= movement[1] )
             -- then
-            print("-----------------------------------------------start-----------------------------------------------")
-                print(yInc + memory.readbyte(character[8])+1 .. ", " .. xInc + memory.readbyte(character[7])+1)
+            -- print("-----------------------------------------------start-----------------------------------------------")
+                -- print("point: " .. yInc + memory.readbyte(character[8])+1 .. ", " .. xInc + memory.readbyte(character[7])+1)
                 path = BFS.BFS(memory.readbyte(character[7])+1, memory.readbyte(character[8])+1,
                 xInc + memory.readbyte(character[7]) + 1, yInc + memory.readbyte(character[8]) + 1,
                 map, movement)
-                print(BFS.getLengthOfPath(path, map, movement))
+                -- print(BFS.getLengthOfPath(path, map, movement))
                 if BFS.getLengthOfPath(path, map, movement) <= movement[1]
                 -- math.abs(yInc) + math.abs(xInc) == movement[1] 
                 and ( maxMovement(yInc, xInc, memory.readbyte(character[8]) + 1, memory.readbyte(character[7]) + 1, map, 
                       BFS.getLengthOfPath(path, map, movement), movement) -- BFS.getLengthOfPath(path, map, movement) == movement[1]
                 or isOfInterest(yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1, map)) -- is worth checking out
                 then
-                    print("found: " .. yInc + memory.readbyte(character[8]) + 1 .. ", " .. xInc + memory.readbyte(character[7]) + 1)
+                    -- print("found: " .. yInc + memory.readbyte(character[8]) + 1 .. ", " .. xInc + memory.readbyte(character[7]) + 1)
                     table.insert(finalList, {yInc + memory.readbyte(character[8]) + 1, xInc + memory.readbyte(character[7]) + 1})
                 end
             -- end
-            print("-----------------------------------------------end--------------------------------------------------")
+            -- print("-----------------------------------------------end--------------------------------------------------")
         end
         -- print("end of for")
     end
     print("finding moves from " .. memory.readbyte(character[8]) + 1 .. ", " .. memory.readbyte(character[7]) + 1)
     print(movement[1])
 
-    -- tprint(finalList)
+    tprint(finalList)
     return finalList
     
 end
@@ -54,20 +55,20 @@ function maxMovement(yChange, xChange, yBase, xBase, map, pathLength, movement)
     y = yBase + yChange
     x = xBase + xChange
     if pathLength == movement[1] then
-        print(y.. ", ".. x .. "is max range")
+        -- print(y.. ", ".. x .. "is max range")
         return true
     elseif pathLength < movement[1] then
         if  BFS.getLengthOfPath(
             BFS.BFS(xBase, yBase, xChange + xBase, yChange + yBase + globals.signOf(yChange), map, movement),
             map, movement) > movement[1]        
         then
-            print(y.. ", ".. x .. "is max possible movement")
+            -- print(y.. ", ".. x .. "is max possible movement")
             return true
         elseif BFS.getLengthOfPath(
             BFS.BFS(xBase, yBase, xChange + xBase + globals.signOf(xChange), yChange + yBase, map, movement),
             map, movement) > movement[1] 
         then
-            print(y.. ", ".. x .. "is max possible movement")
+            -- print(y.. ", ".. x .. "is max possible movement")
             return true
         end
     end
@@ -91,28 +92,28 @@ function isOfInterest(y, x, map)
     if map[y][x][1] == mapReader.stringToShort["Forest"]
     or map[y][x][1] == mapReader.stringToShort["Fort"]
     then
-        print(y .. ", " .. x .. " is of interest")
+        -- print(y .. ", " .. x .. " is of interest")
         return true
     end
     if y+1 <= #map and 
     (map[y+1][x][2] == 2 or map[y+1][x][2] == 3)
     then
-        print(y .. ", " .. x .. " has enemy")
+        -- print(y .. ", " .. x .. " has enemy")
         return true
     elseif y-1 > 0 and 
     (map[y-1][x][2] == 2 or map[y-1][x][2] == 3)
     then
-        print(y .. ", " .. x .. " has enemy")
+        -- print(y .. ", " .. x .. " has enemy")
         return true
     elseif x+1 <= #map[y] and 
     (map[y][x+1][2] == 2 or map[y][x+1][2] == 3)
     then
-        print(y .. ", " .. x .. " has enemy")
+        -- print(y .. ", " .. x .. " has enemy")
         return true
     elseif x-1 > 0 and 
     (map[y][x-1][2] == 2 or map[y][x-1][2] == 3)
     then
-        print(y .. ", " .. x .. " has enemy")
+        -- print(y .. ", " .. x .. " has enemy")
         return true
     end
         
@@ -123,15 +124,32 @@ end
 --for now, assuming 1 range weapons only
 --need the character's slot (to know his X,Y coordinates, stats, and equipment)
 --Caution: map starts at (1,1) and NOT (0,0)
-function calculateScore(character, map)
+function calculateScore(x, y, character, map)
+    local returnCode = {}
+    --[[
+        returnCode = {
+            score,
+            x for move,
+            y for move,
+            attack / wait,
+            weapon to attack with,
+            enemy to attack x,
+            enemy to attack y
+        }
+        if wait, then the last two are nil
+    ]]
     local score = 0
+    returnCode[2] = x
+    returnCode[3] = y
     -- add cover 25
-    myX = memory.readbyte(character[7]); --Recall: Horz Position (Col)
-    myY = memory.readbyte(character[8]); --Recall: Vert Postion (Row)
+    myX = x - 1; --Recall: Horz Position (Col)
+    myY = y - 1; --Recall: Vert Postion (Row)
+    -- myX = x - 1
+    -- myY = y - 1
     myTerrain = map[myY+1][myX+1][1]
-    print(myTerrain)
+    -- print(myTerrain)
 
-    if(myTerrain == "f")
+    if(myTerrain == "f" or myTerrain == "t")
     then
         score = score + 25
     end
@@ -261,103 +279,181 @@ function calculateScore(character, map)
     -- -- add if can hit 40
     --Note: all units will get some portion of this 40 points. You get a % of this 40 dependent on the hit rate! (80% hit gets you 32 points)
     --Note: Our AI knows about the true hit mechanic, thus, will likely score better here (and better in "getting hit")
+    ------------------------------------------------------------------------------------------------------------------------
+    -- needs to be changed to incorperate the various different combat windows (done)
+    -- that can appear (done)
+    -- need to add special case for if you can hit but do no damage (done)
+    ------------------------------------------------------------------------------------------------------------------------
+    --Inside the combat window (no longer in use)
+
+    -- move to space
+    actions.Move(character, x-1, y-1)
+    -- investigate
+    windows = actions.Investigate(map, character)
+    -- return to the base space
+    actions.returnToStart()
+    -- find best attack window
+    if not globals.empty(windows) then
+        
+        globals.tprint(windows)
+        bestWindow = getBestWindow(windows)
+        globals.tprint(bestWindow)
+        returnCode[4] = "attack"
+        returnCode[5] = bestWindow[9]
+        returnCode[6] = bestWindow[10]
+        returnCode[7] = bestWindow[11]
+        
+        -- calc attack score
+        myHit = bestWindow[7]
+        myTrueHit = TheTrueHit.GetTrueHit(myHit)
+        myHitScore = 40 * myTrueHit / 100
+        score = score + myHitScore
+
+        -- -- add if can kill 45
+        --Note: This will be weighted by the myHitScore (which already factors in true hit)
+        --A Fine Note: If you overkill an enemy (say, doing 21 damage to someone with 20 HP), you only do 20 damage
+        --Possible Caution: Suppose you could kill an enemy on the follow up attack
+        --You definitely can kill them, but you risk taking damage on the enemies attack (2nd of the 3 in total)...
+        --BIG Note: You don't double with Spd, you double with EFFECTIVE Spd
+        --Spd Penalty = WeaponWeight - Con; if this value is positive, it becomes 0 (can only be negative)
+        --Effective Spd = Spd - Spd Penalty
+        --Luckily for us, this EffSpd value is already in memory!
+        --Late Game Caution: Not factoring in brave weapons (these make you attack 2x per swing (up to 4x))
+        mySpd = memory.readbyte(0x0203A44E)
+        enemySpd = memory.readbyte(0x0203A4CE)
+
+        myDamage = bestWindow[6]
+
+        if(mySpd >= (enemySpd + 4))
+        then
+            myDamage = myDamage * 2
+        end
+
+        enemyHP = bestWindow[1]
+        if(myDamage >= enemyHP)
+        then
+            score = score + 45 * myTrueHit / 100
+        end
+
+        -- add if will get hit -25
+        --Note: Similar to your hit rate, this value will be a percentage of the enemy hit rate
+        --Note: A unit who has a 2 range weapon attacked at 1 range has a hit rate of -1 (-- on the combat window)
+        enemyHit = bestWindow[3]
+        enemyDmg =bestWindow[2]
+        if(enemyHit > 0 and enemyDmg > 0)
+        then
+            enemyTrueHit = TheTrueHit.GetTrueHit(enemyHit)
+        else 
+            enemyTrueHit = 0
+        end
+
+        score = score - 25 * enemyTrueHit / 100
+
+        -- add if survivable (50/ -50)
+        --This will be a simple check to see if dying is in the realm of possibility
+        --By design, if there is a non-zero chance of displayed hit that will kill the player unit, this gets full -50
+        --Conversely, if there is a zero chance of dying, you get the full +50
+        --We wanted to make some numerical weight to remove gambling--even if gambling is truly the best move
+        --Note: the enemy potentially doubles here, but it's likely that it would not happen
+        myCurHP = bestWindow[5]
+
+        if(enemySpd >= (mySpd + 4))
+        then
+            enemyDmg = enemyDmg * 2
+        end
+
+        if(enemyDmg >= myCurHP)
+        then
+            score = score - 50
+        else
+            score = score + 50
+        end
     
-    --Inside the combat window
-    myHit = memory.readbyte(0x0203A454)
-    myTrueHit = TheTrueHit.GetTrueHit(myHit)
-    myHitScore = 40 * myTrueHit / 100
-    score = score + myHitScore
-
-    -- -- add if can kill 45
-    --Note: This will be weighted by the myHitScore (which already factors in true hit)
-    --A Fine Note: If you overkill an enemy (say, doing 21 damage to someone with 20 HP), you only do 20 damage
-    --Possible Caution: Suppose you could kill an enemy on the follow up attack
-    --You definitely can kill them, but you risk taking damage on the enemies attack (2nd of the 3 in total)...
-    --BIG Note: You don't double with Spd, you double with EFFECTIVE Spd
-    --Spd Penalty = WeaponWeight - Con; if this value is positive, it becomes 0 (can only be negative)
-    --Effective Spd = Spd - Spd Penalty
-    --Luckily for us, this EffSpd value is already in memory!
-    --Late Game Caution: Not factoring in brave weapons (these make you attack 2x per swing (up to 4x))
-    mySpd = memory.readbyte(0x0203A44E)
-    enemySpd = memory.readbyte(0x0203A4CE)
-
-    myDamage = memory.readbyte(0x0203A4F3)
-
-    if(mySpd >= (enemySpd + 4))
-    then
-        myDamage = myDamage * 2
-    end
-
-    enemyHP = memory.readbyte(0x0203A4E2)
-    if(myDamage >= enemyHP)
-    then
-        score = score + 45 * myTrueHit / 100
-    end
-
-    -- add if will get hit -25
-    --Note: Similar to your hit rate, this value will be a percentage of the enemy hit rate
-    --Note: A unit who has a 2 range weapon attacked at 1 range has a hit rate of -1 (-- on the combat window)
-    enemyHit = memory.readbyte(0x0203A4D4)
-    enemyDmg = memory.readbyte(0x0203A4F7)
-    if(enemyHit > 0 and enemyDmg > 0)
-    then
-        enemyTrueHit = TheTrueHit.GetTrueHit(enemyHit)
-    else 
-        enemyTrueHit = 0
-    end
-
-    score = score - 25 * enemyTrueHit / 100
-
-    -- add if survivable (50/ -50)
-    --This will be a simple check to see if dying is in the realm of possibility
-    --By design, if there is a non-zero chance of displayed hit that will kill the player unit, this gets full -50
-    --Conversely, if there is a zero chance of dying, you get the full +50
-    --We wanted to make some numerical weight to remove gambling--even if gambling is truly the best move
-    --Note: the enemy potentially doubles here, but it's likely that it would not happen
-    myCurHP = memory.readbyte(character[10])
-
-    if(enemySpd >= (mySpd + 4))
-    then
-        enemyDmg = enemyDmg * 2
-    end
-
-    if(enemyDmg >= myCurHP)
-    then
-        score = score - 50
     else
+        returnCode[4] = "wait"
+    end
+    -- add if will win (50)
+
+    -- -- if character is a lord and the movespot is the throne
+    -- -- note, this dose not check for promoted lords. need to add that 
+    -- -- for continued development
+    charPort = memory.readword(character[1])
+    charPort = string.format("%x", charPort)
+    if (charPort == "ce4c" )
+    and mapReader.shortToString[map[y][x][1]] == "Throne"
+    then
         score = score + 50
     end
 
-    -- add if will win (50)
-
     -- add in range
-    -- -- !in range 25
+    -- -- this will look at every enemy on the field and check
+    -- -- if they are able to move to the player and attack on their turn
+    for i,v in ipairs(TheCharData.EnemyUnits) do
+        if memory.readword(v[2]) ~= 0 then
+            range = TheClassData.GetClassType(memory.readword(v[2]))
+            -- print(i .. ": ")
+            -- print(memory.readbyte(v[8]) + 1 .. ", " .. memory.readbyte(v[7]) + 1)
+            -- print("to " .. y .. ", " .. x)
+            dist = BFS.getLengthOfPath(BFS.goalPath(memory.readbyte(v[7]) + 1, 
+                   memory.readbyte(v[8]) + 1, x, y, map, range ),
+                   map, range)
+            if dist <= range[1] then
+                -- -- can hit 40
+
+                -- -- get hit -25
+
+                -- -- survivable (50 / -50)
+            else
+                -- -- !in range 25
+                score = score + 25
+            end
+        end
+        returnCode[1] = score
+        return returnCode
+    end
+
+   
     
     -- -- else
-    -- -- can hit 40
-
-    -- -- get hit -25
-
-    -- -- survivable (50 / -50)
+    
 
     return score
 end
 
+function getBestWindow(windows)
+    bestScore = 0
+    bestIndex = 0
+
+    for i,v in ipairs(windows) do 
+        score = (TheTrueHit.GetTrueHit(v[7]) * v[6]) - (TheTrueHit.GetTrueHit(v[3]) * v[2])
+        if(score > bestScore) then
+            bestScore = score
+            bestIndex = i
+        end
+    end
+
+    return windows[bestIndex]
+end
 
 function getNextCharMove(character, slotNum, map)
+    moveX = 0
+    moveY = 0
+    score = 0
     move = ""
     print("running next move for slot " .. slotNum)
     moves = {}
     terrain = {}
-    terrain = TheClassData.GetClassType(character[2])
-    print("loaded in terrain movement")
+    terrain = TheClassData.GetClassType(memory.readword(character[2]))
+    -- print("loaded in terrain movement")
     -- TheCharData.tprint(map)
     moves = findMoves(character, map, terrain)
-
-    -- just for testing, remove later
-    calculateScore()
+    -- globals.tprint(moves)
+    
     -- find what moves slot could take
-
+    for i,v in ipairs(moves) do
+        tempCode = calculateScore(v[2], v[1], character, map)
+        print(v[2] .. ", " .. v[1] .. ": " .. tempCode[1])
+    end
     -- calculate score for each move
 
     
