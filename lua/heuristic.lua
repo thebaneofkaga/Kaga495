@@ -473,42 +473,69 @@ function getNextCharMove(character, slotNum, map)
     return move;
 end
 
+function hasSomeoneToMove(chars)
+    for i,v in ipairs(chars) do
+        if string.format("%x", memory.readword(v[2]) ) ~= "0"
+        and string.format("%x", memory.readbyte(v[5]) ) == "0" then
+            return true;
+        end
+    end
+    return false
+end
+
 function GroupHeuristic(tableOfCharacters, map)
     local moves = {};
-    local slotsMoved = {};
+    slotsMoved = {};
 
+    local numOfUnits = 0
+    local whlieLoopCounter = 0;
+
+    for i =1, 16 do
+        table.insert(slotsMoved, 0)
+    end
     TheCharData.PrintTable(tableOfCharacters)
 
     for i,v in ipairs(tableOfCharacters) do
         if string.format("%x", memory.readword(v[2]) ) ~= "0" then
+            numOfUnits = numOfUnits + 1
             moves[i] = getNextCharMove(v, i, map)
             TheVBA.Press("L", 60)
         end
     end
     globals.tprint(moves)
     
-    while #slotsMoved < #tableOfCharacters - 1 do
-        highestScore = 0
-        slotToMove = 0
+    while whlieLoopCounter < numOfUnits do -- fix this shit
+        local highestScore = 0
+        local slotToMove = 0
         -- get highest score
         for i,v in ipairs(moves) do
+            print(v[1] .." > " .. highestScore .. "?")
             if v[1] > highestScore then
                 highestScore = v[1]
                 slotToMove = i
             end
         end
         -- execute move
+        if not globals.empty(slotsMoved) then
+            -- print(slotToMove .. " - " .. 1 .. " - " .. #slotsMoved " = " .. slotToMove - 1 - #slotsMoved)
+        end
         for i = 1, slotToMove - 1 do 
-            TheVBA.Press("L", 30)
+            if slotsMoved[i] == 0 then
+                TheVBA.Press("L", 30)
+            end
         end
         print("move to execute slot " .. slotToMove)
         globals.tprint(moves[slotToMove])
         executeMove(tableOfCharacters[slotToMove], moves[slotToMove])
         -- insert to slotsMoved
-        table.insert(slotsMoved, i)
+        print("inserting into slotsMoved")
+        -- table.insert(slotsMoved, slotToMove)
+        slotsMoved[slotToMove] = 1;
+        globals.tprint(slotsMoved)
         -- re-evaluate
-        for i = slotToMove, #tableOfCharacters - 1, 1 do
+        for i = slotToMove, #tableOfCharacters do
             if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0" then
+                print("press L")
                 TheVBA.Press("L", 30)
             end
         end
@@ -520,14 +547,20 @@ function GroupHeuristic(tableOfCharacters, map)
         moves = {}
         -- globals.tprint(map)
         for i,v in ipairs(tableOfCharacters) do
-            if string.format("%x", memory.readword(v[2]) ) ~= "0" 
-            and string.format("%x", memory.readbyte(v[5]) ) == "0"
-            then
-                moves[i] = getNextCharMove(v, i, map)
-                TheVBA.Press("L", 60)
+            if string.format("%x", memory.readword(v[2]) ) ~= "0" then
+                if string.format("%x", memory.readbyte(v[5]) ) == "0"
+                then
+                    moves[i] = getNextCharMove(v, i, map)
+                    TheVBA.Press("L", 60)
+                else
+                    moves[i] = {0,0,0,"wait"}
+                end
             end
         end
+        globals.tprint(moves)
+        whlieLoopCounter = whlieLoopCounter + 1
     end
+    print("done with round")
     return map
 end
 
