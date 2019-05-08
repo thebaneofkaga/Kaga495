@@ -63,27 +63,40 @@ function Move(Unit, LocX, LocY)
     
 end
 
---parameters are the two units that will fight each other
---Note: assumes that the attack is optimal
-function Attack(Unit, Enemy)
+--parameters are your unit, the weapon to use, and the (x,y) coordinates of the enemy 
+--Note: assumes that the attack is optimal AND that the weapon requested is in the inventory 
+--the weapon should be there because that weapon was chosen based on an investigated combat window
+function Attack(Unit, Weapon, EneX, EneY)
     --press "Attack"
     TheVba.Press("A", 30)
-    --SELECT WEAPON HERE, NOT ADDED
-    --Concern: Selecting the optimal weapon here should be based on our "best move" calculation?
-    TheVba.Press("A", 30)
+    --select the weapon
+    --assume the weapon to use isn't the first one you see (it might be though)
+    notOnWeapon = true
+    while(notOnWeapon)
+    do
+        --this is one of 3 addresses that all hold the currently "hovered over" item in this menu
+        currItem = memory.readbyte(0x0203A40E) .. ""
+        if(currItem == Weapon)
+        then
+            --now that we found the weapon we can press down and enter the combat window
+            TheVba.Press("A", 60)
+            --and of course, kick out of the loop
+            notOnWeapon = false
+        else
+            --cycle down the list of items
+            TheVba.Press("down", 60)
+        end
+    end
+
     --Select proper target tile
     --The cursor automatically moves to the targeted enemy, however, you can be in range of multiple enemies
     --For example, if an enemy is to the left and above you, the cursor auto places itself on the one above
 
-    --Current Algorithm (Bugged)
-    --While it isn't true there is an enemy directly above you, we can "assume" there is one << You actually can't
-    --After all, we don't need to keep track of the cursor here << We might have to
-
     --Valid section
     --If our "dummy cursor" isn't on the requested enemy, just press right
     --We can keep pressing right until the "dummy cursor" is on the enemy tile
-    --If there is only one enemy, then pressing right doesn't actually do anything
-    --If there are multiple enemies, then each right will cycle clockwise
+    --If there is only one enemy, then pressing right doesn't actually do anything (which doesn't matter)
+    --If there are multiple enemies, then each right will cycle to a different enemy
 
     --Excluding the long bow and seige tomes (so, the realistic scenario of enemies within 1-2 range) looks like this
     --[[
@@ -94,65 +107,23 @@ function Attack(Unit, Enemy)
                 X
     --]]
 
-    --This may prove to be more troublesome in it's current state, consider changing the algorithm
-    dumX = memory.readbyte(Unit[7])
-    dumY = memory.readbyte(Unit[8]) - 0x1
-    eneX = memory.readbyte(Enemy[7])
-    eneY = memory.readbyte(Enemy[8])
-    
-    print("Initial State")
-    print("dumX: " .. dumX)
-    print("dumY: " .. dumY)
-    print("eneX: " .. eneX)
-    print("eneY: " .. eneY)
-
-    cursorNotOnEnemy = true --assume it isn't on the enemy, but we'll check it first anyway 
-    searchAttempt = 0
-
-    while(cursorNotOnEnemy)
+    --assume that the enemy isn't selected when the cursor snaps to an enemy
+    notOnEnemy = true
+    while(notOnEnemy)
     do
-        if(dumX == eneX and dumY == eneY)
+        --these addresses hold the (x,y) coordinates of the cursor when it's snapping to an enemy
+        --Note: these addresses don't update when simply moving the cursor across the screen when playing--only during this moment
+        --Concern: these addresses are based on the coordinate plane with (0,0) being the top left corner--NOT (1,1) like lua!
+        dumX = memory.readbyte(0x0203A480) 
+        dumY = memory.readbyte(0x0203A481)
+        if(dumX == EneX and dumY == EneY)
         then
-            print("found the enemy")
-            cursorNotOnEnemy = false
-        else
-            TheVba.Press("right", 30)
-            if(searchAttempt == 0)
-            then 
-                --dummy is on the right adjacent tile
-                dumX = dumX + 0x1
-                dumY = dumY + 0x1
-                searchAttempt = 1
-                print("Should be the right tile")
-                print("dumX: " .. dumX)
-                print("dumY: " .. dumY)
-                print("eneX: " .. eneX)
-                print("eneY: " .. eneY)
-            elseif(searchAttempt == 1)
-            then
-                --dummy is on the bottom adjacent tile
-                dumX = dumX - 0x1
-                dumY = dumY + 0x1
-                searchAttempt = 2
-                print("Should be the bottom tile")
-                print("dumX: " .. dumX)
-                print("dumY: " .. dumY)
-                print("eneX: " .. eneX)
-                print("eneY: " .. eneY)
-            elseif(searchAttempt == 2)
-            then
-                --dummy is on the left adjacent tile
-                dumX = dumX - 0x1
-                dumY = dumY - 0x1
-                searchAttempt = 3 --technically unusued as of now
-                print("Should be the left tile")
-                print("dumX: " .. dumX)
-                print("dumY: " .. dumY)
-                print("eneX: " .. eneX)
-                print("eneY: " .. eneY)
-                --by now, the dummy has rotated around the unit
-                --until full implementation with accurate rotation, this shell will do for now
-            end
+            --if the coordinates match, then we found the enemy (kick out)
+            notOnEnemy = false
+        else 
+            --otherwise, we can cycle to the next target
+            --when this continues to loop, the dumX and dumY will get re-read for the next comparison
+            TheVba.Press("right", 60)
         end
     end
     --the end of this loop should secure the enemy is the proper one selected
