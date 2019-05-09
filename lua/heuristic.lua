@@ -307,7 +307,7 @@ function calculateScore(x, y, character, map)
     -- find best attack window
     if not globals.empty(windows) then
         
-        -- globals.tprint(windows)
+        globals.tprint(windows)
         bestWindow = getBestWindow(windows)
         -- globals.tprint(bestWindow)
         returnCode[4] = "attack"
@@ -435,7 +435,7 @@ end
 function getBestWindow(windows)
     bestScore = 0
     bestIndex = 0
-
+    globals.tprint(windows)
     for i,v in ipairs(windows) do 
         score = (TheTrueHit.GetTrueHit(v[7]) * v[6]) - (TheTrueHit.GetTrueHit(v[3]) * v[2])
         if(score > bestScore) then

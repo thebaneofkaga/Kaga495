@@ -17,14 +17,14 @@ map = charData.addUnitsToMap(map)
 
 -- charData.tprint(map)
 
--- map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
+map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 -- TheActions.WaitOutTheEnemy()
 -- TheVBA.Press("start", 3600)
 -- map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 
 -- move = heuristic.getNextCharMove(charData.PlayerUnits[2], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[2][2])))
 -- globals.tprint(move)
-TheActions.Investigate(map, charData.PlayerUnits[2])
+-- TheActions.Investigate(map, charData.PlayerUnits[2])
 
 
 -- myUnit = charData.PlayerUnits[2] --should be Marcus (11)

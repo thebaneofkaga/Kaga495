@@ -564,91 +564,92 @@ function Investigate(map, Unit)
                 end
             end
         end
-
+        print(canAttack)
         --by now, I should know if I can attack (based on the aformentioned bool)
         if(canAttack)
         then
             --enter the usable weapon menu
             TheVba.Press("A", 60)
-        end
+        -- end
 
-        --loop through each weapon that can attack (which isn't a list of all weapons in your inventory)
-        --KNOWN BUG: a Paladin -can- have an iron bow in his inventory... which has a range value of 2
-        --a Paladin can never use a bow in combat, but that range is still "valid"
-        --SOLUTION FOR LATER: implement class weapon ranks and weapons' ranks
+            --loop through each weapon that can attack (which isn't a list of all weapons in your inventory)
+            --KNOWN BUG: a Paladin -can- have an iron bow in his inventory... which has a range value of 2
+            --a Paladin can never use a bow in combat, but that range is still "valid"
+            --SOLUTION FOR LATER: implement class weapon ranks and weapons' ranks
 
-        --for now, assuming the usable weapon menu will be the same as your weapon list
-        --NOT TRUE all the time, but for now it's good enough
-        
-        for i = 1, myWeapons, 1
-        do
-            --These addresses hold the currently hovered over item
-            --[[
-                0x0203A40E <- Arbitrarily chose this one
-                0x0203A438
-                0x0203A43A
-            --]]
-
-            local currWeapon = memory.readbyte(0x0203A40E)
-            local currRange = TheCharData.GetWeaponRange(currWeapon)
-
-            if(currRange == 1)
-            then
-                --enter the combat window
-                TheVba.Press("A", 60)
-                for j = 1, enemiesOneRange, 1
-                do
-                    local tempCombatWindow = {}
-                    table.insert(tempCombatWindow, aCombatWindow)
-                    --Grab the temp addresses and put them into a table
-                    tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
-                    tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
-                    tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
-                    tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
-                    tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
-                    tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
-                    tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
-                    tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
-                    tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
-                    tempCombatWindow[10] = memory.readbyte(0x0203A480)
-                    tempCombatWindow[11] = memory.readbyte(0x0203A481)
-                    --then put them into a table of all the combat windows
-                    table.insert(combatWindows, tempCombatWindow)
-                    --cylce to the next enemy 
-                    TheVba.Press("right", 60)
-                end
-                --back out of this weapon
-                TheVba.Press("B", 60)
-            elseif(currRange == 3)
-            then
-                --enter the combat window
-                TheVba.Press("A", 60)
-                for j = 1, enemiesOneOrTwoRange, 1
-                do
-                    local tempCombatWindow = {}
-                    table.insert(tempCombatWindow, aCombatWindow)
-                    --Grab the temp addresses and put them into a table
-                    tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
-                    tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
-                    tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
-                    tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
-                    tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
-                    tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
-                    tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
-                    tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
-                    tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
-                    --then put them into a table of all the combat windows
-                    table.insert(combatWindows, tempCombatWindow)
-                    --cylce to the next enemy 
-                    TheVba.Press("right", 60)
-                end
-                --back out of this weapon
-                TheVba.Press("B", 60)
-            end
-            --cycle through the weapons
-            for j = 1, i, 1
+            --for now, assuming the usable weapon menu will be the same as your weapon list
+            --NOT TRUE all the time, but for now it's good enough
+            
+            for i = 1, myWeapons, 1
             do
-                TheVba.Press("down", 60)
+                --These addresses hold the currently hovered over item
+                --[[
+                    0x0203A40E <- Arbitrarily chose this one
+                    0x0203A438
+                    0x0203A43A
+                --]]
+
+                local currWeapon = memory.readbyte(0x0203A40E)
+                local currRange = TheCharData.GetWeaponRange(currWeapon)
+
+                if(currRange == 1)
+                then
+                    --enter the combat window
+                    TheVba.Press("A", 60)
+                    for j = 1, enemiesOneRange, 1
+                    do
+                        local tempCombatWindow = {}
+                        table.insert(tempCombatWindow, aCombatWindow)
+                        --Grab the temp addresses and put them into a table
+                        tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
+                        tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
+                        tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
+                        tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
+                        tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
+                        tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
+                        tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
+                        tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                        tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
+                        tempCombatWindow[10] = memory.readbyte(0x0203A480)
+                        tempCombatWindow[11] = memory.readbyte(0x0203A481)
+                        --then put them into a table of all the combat windows
+                        table.insert(combatWindows, tempCombatWindow)
+                        --cylce to the next enemy 
+                        TheVba.Press("right", 60)
+                    end
+                    --back out of this weapon
+                    TheVba.Press("B", 60)
+                elseif(currRange == 3)
+                then
+                    --enter the combat window
+                    TheVba.Press("A", 60)
+                    for j = 1, enemiesOneOrTwoRange, 1
+                    do
+                        local tempCombatWindow = {}
+                        table.insert(tempCombatWindow, aCombatWindow)
+                        --Grab the temp addresses and put them into a table
+                        tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
+                        tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
+                        tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
+                        tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
+                        tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
+                        tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
+                        tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
+                        tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                        tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
+                        --then put them into a table of all the combat windows
+                        table.insert(combatWindows, tempCombatWindow)
+                        --cylce to the next enemy 
+                        TheVba.Press("right", 60)
+                    end
+                    --back out of this weapon
+                    TheVba.Press("B", 60)
+                end
+                --cycle through the weapons
+                for j = 1, i, 1
+                do
+                    TheVba.Press("down", 60)
+                end
             end
         end
     end
