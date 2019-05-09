@@ -431,17 +431,25 @@ function calculateScore(x, y, character, map)
     range = TheClassData.GetClassType(memory.readword(character[2]))
     print(BFS.getLengthOfPath(BFS.goalPath(memory.readbyte(character[7]) + 1,
     memory.readbyte(character[8]) + 1, 4, 8, map, range),
+    map, range) .. " vs " .. BFS.getLengthOfPath(BFS.goalPath(x,
+    y, 4, 8, map, range),
     map, range) .. "___________________________________________________________________________________")
     if BFS.getLengthOfPath(BFS.goalPath(memory.readbyte(character[7]) + 1,
     memory.readbyte(character[8]) + 1, 4, 8, map, range),
     map, range)
     >
     BFS.getLengthOfPath(BFS.goalPath(x,
-    y, 8, 4, map, range),
+    y, 4, 8, map, range),
     map, range)
     then
         print("moved forward")
-        score = score + 35
+        score = score + (5 * (BFS.getLengthOfPath(BFS.goalPath(memory.readbyte(character[7]) + 1,
+        memory.readbyte(character[8]) + 1, 4, 8, map, range),
+        map, range)
+        -
+        BFS.getLengthOfPath(BFS.goalPath(x,
+        y, 4, 8, map, range),
+        map, range)))
     end
     
    
@@ -572,33 +580,47 @@ function GroupHeuristic(tableOfCharacters, map)
         slotsMoved[slotToMove] = 1;
         globals.tprint(slotsMoved)
         -- re-evaluate
-        for i = slotToMove, #tableOfCharacters do
-            if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0"
-            -- and string.format("%x", memory.readword(tableOfCharacters[i][5])) == "0" 
-            then
-                print("press L")
-                TheVBA.Press("L", 30)
-            end
-        end
+        -- for i = slotToMove, #tableOfCharacters do
+        --     if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0"
+        --     -- and string.format("%x", memory.readword(tableOfCharacters[i][5])) == "0" 
+        --     then
+        --         print("press L")
+        --         TheVBA.Press("L", 30)
+        --     end
+        -- end
         blankSpace = false
         char = tableOfCharacters[slotToMove]
         spotsLeft = 0
         spotsUp = 0
 
+        map = mapReader.setupMap()
+        map = TheCharData.addUnitsToMap(map)
+        moves = {}
+
         while not blankSpace do 
             if memory.readbyte(char[7]) + 1 - spotsLeft > 0
-            and map[memory.readbyte(char[8]) + 1 - spotsUp][memory.readbyte(char[7]) + 1 - spotsLeft]
+            and map[memory.readbyte(char[8]) + 1 - spotsUp][memory.readbyte(char[7]) + 1 - spotsLeft][2] == 0
             then
                 -- move cursor
-                TheVBA.Press("left", 60)
+                for i = 1, spotsLeft do
+                    TheVBA.Press("left", 60)
+                end
+                for i = 1, spotsUp do
+                    TheVBA.Press("up", 60)
+                end
                 -- press L
                 TheVBA.Press("L", 60)
                 blankSpace = true
             elseif memory.readbyte(char[8]) + 1 - spotsUp > 0
-            and map[memory.readbyte(char[8]) + 1- spotsUp][memory.readbyte(char[7]) + 1 - spotsLeft]
+            and map[memory.readbyte(char[8]) + 1- spotsUp][memory.readbyte(char[7]) + 1 - spotsLeft][2] == 0
             then
                 -- move cursor
-                TheVBA.Press("up", 60)
+                for i = 1, spotsLeft do
+                    TheVBA.Press("left", 60)
+                end
+                for i = 1, spotsUp do
+                    TheVBA.Press("up", 60)
+                end
                 -- press L
                 TheVBA.Press("L" , 60)
                 blankSpace = true
@@ -609,9 +631,7 @@ function GroupHeuristic(tableOfCharacters, map)
         -- print("---------------------------------------------------------------------------------")
         -- TheCharData.PrintTable(TheCharData.EnemyUnits)
         -- print("---------------------------------------------------------------------------------")
-        map = mapReader.setupMap()
-        map = TheCharData.addUnitsToMap(map)
-        moves = {}
+        
         -- globals.tprint(map)
         
         whlieLoopCounter = whlieLoopCounter + 1
