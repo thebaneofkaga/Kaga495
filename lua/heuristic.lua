@@ -346,6 +346,7 @@ function calculateScore(x, y, character, map)
             if(myDamage >= enemyHP)
             then
                 score = score + 45 * myTrueHit / 100
+                score = score + 10000
             end
 
             -- add if will get hit -25
@@ -400,7 +401,7 @@ function calculateScore(x, y, character, map)
     if (charPort == "ce4c" )
     and mapReader.shortToString[map[y][x][1]] == "Throne"
     then
-        score = score + 50
+        score = score + 500000
     end
 
     -- add in range
@@ -417,7 +418,7 @@ function calculateScore(x, y, character, map)
                    map, range)
             if dist <= range[1] then
                 -- -- can hit 40
-
+                score = score + 100
                 -- -- get hit -25
 
                 -- -- survivable (50 / -50)

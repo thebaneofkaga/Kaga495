@@ -388,7 +388,7 @@ function Investigate(map, Unit)
     else
         --if we get here, this means the tile above me is in bounds, so we can read from it
         adjT = map[myY][myX+1]
-        if(adjT[2] == 2)
+        if(adjT[2] == 2 or adjT[2] == 3)
         then
             enemiesOneRange = enemiesOneRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -401,7 +401,7 @@ function Investigate(map, Unit)
         adjR = {}
     else 
         adjR = map[myY+1][myX+2]
-        if(adjR[2] == 2)
+        if(adjR[2] == 2 or adjR[2] == 3)
         then
             enemiesOneRange = enemiesOneRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -414,7 +414,7 @@ function Investigate(map, Unit)
         adjB = {}
     else 
         adjB = map[myY+2][myX+1]
-        if(adjB[2] == 2)
+        if(adjB[2] == 2 or adjB[2] == 3)
         then
             enemiesOneRange = enemiesOneRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -427,7 +427,7 @@ function Investigate(map, Unit)
         adjL = {}
     else
         adjL = map[myY+1][myX]
-        if(adjL[2] == 2)
+        if(adjL[2] == 2 or adjL[2] == 3)
         then
             enemiesOneRange = enemiesOneRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -441,7 +441,7 @@ function Investigate(map, Unit)
         adjTT = {}
     else
         adjTT = map[myY-1][myX+1]
-        if(adjTT[2] == 2)
+        if(adjTT[2] == 2 or adjTT[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -454,7 +454,7 @@ function Investigate(map, Unit)
         adjTR = {}
     else
         adjTR = map[myY][myX+2]
-        if(adjTR[2] == 2)
+        if(adjTR[2] == 2 or adjTR[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -467,7 +467,7 @@ function Investigate(map, Unit)
         adjBR = {}
     else
         adjBR = map[myY+2][myX+2]
-        if(adjBR[2] == 2)
+        if(adjBR[2] == 2 or adjBR[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -480,7 +480,7 @@ function Investigate(map, Unit)
         adjBB = {}
     else
         adjBB = map[myY+3][myX+1]
-        if(adjBB[2] == 2)
+        if(adjBB[2] == 2 or adjBB[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -493,7 +493,7 @@ function Investigate(map, Unit)
         adjBL = {}
     else
         adjBL = map[myY+2][myX]
-        if(adjBL[2] == 2)
+        if(adjBL[2] == 2 or adjBL[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -506,7 +506,7 @@ function Investigate(map, Unit)
         adjLL = {}
     else
         adjLL = map[myY+1][myX-1]
-        if(adjLL[2] == 2)
+        if(adjLL[2] == 2 or adjLL[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
@@ -519,7 +519,7 @@ function Investigate(map, Unit)
         adjTL = {}
     else
         adjTL = map[myY][myX]
-        if(adjTL[2] == 2)
+        if(adjTL[2] == 2 or adjTL[2] == 3)
         then
             enemiesTwoRange = enemiesTwoRange + 1
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
