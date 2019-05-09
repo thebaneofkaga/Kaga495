@@ -118,17 +118,21 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     endDiscovered = {};
     -- print(terrainInfo[1])
     -- print(#map .. ", " .. #map[1])
+    print(map[5][13][2])
+    
+    print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     if startY > #map 
     or startX  > #map[startY]
     or endY > #map
-    or endX > #map[endY]
+    or endY <= 0
+    or endX > #map[1]
+    or endX <= 0
     or map[endY][endX][2] == 1
     or map[endY][endX][2] == 2
     or map[endY][endX][2] == 3
     then
         return {}
     end
-    -- print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     table.insert(startSearch, {startY, startX, 0});
     table.insert(endSearch, {endY, endX, terrainInfo[2][reader.shortToString[ map[endY][endX][1]]][4]});
     -- table.insert(endSearch, {endY, endX, 0})
@@ -170,6 +174,11 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- print(reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]])
                 -- print(terrainInfo[2][reader.shortToString[ map[tempStartPY[1]][tempStartPY[2]][1]]][4] )
                 -- within bounds
+                -- if map[tempStartPY[1]][tempStartPY[2]][2] ==2
+                -- or map[tempStartPY[1]][tempStartPY[2]][2]== 3
+                -- then
+                --     print("found an enemy")
+                -- end
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -218,6 +227,10 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- print(tempStartNY[1] .. ", " .. tempStartNY[2])
                 -- print(reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]])
                 -- print(terrainInfo[2][reader.shortToString[ map[tempStartNY[1]][tempStartNY[2]][1]]][4] )
+                -- if map[tempStartNY[1]][tempStartNY[2]][2] ==2
+                -- or map[tempStartNY[1]][tempStartNY[2]][2]== 3 then
+                --     print("found an enemy")
+                -- end
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -263,6 +276,11 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- print(tempStartPX[1] .. ", " .. tempStartPX[2])
                 -- print(reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]])
                 -- print(terrainInfo[2][reader.shortToString[ map[tempStartPX[1]][tempStartPX[2]][1]]][4])
+                -- if map[tempStartPX[1]][tempStartPX[2]][2] ==2
+                -- or map[tempStartPX[1]][tempStartPX[2]][2]== 3
+                -- then
+                --     print("found an enemy")
+                -- end
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -307,6 +325,11 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
                 -- print(tempStartNX[1] .. ", " .. tempStartNX[2])
                 -- print(reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]])
                 -- print(terrainInfo[2][reader.shortToString[ map[tempStartNX[1]][tempStartNX[2]][1]]][4])
+                -- if map[tempStartNX[1]][tempStartNX[2]][2] == 2
+                -- or map[tempStartNX[1]][tempStartNX[2]][2] == 3
+                -- then
+                --     print("found an enemy")
+                -- end
                 if -- map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Peak"] 
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["Cliff"]
                 -- and map[tempStartPY[1]][tempStartPY[2]][1] ~= reader.stringToShort["---"]
@@ -538,7 +561,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     path = {}
     centerSpot = getOverlap(startDiscovered, endDiscovered);
     table.insert(path, 1, centerSpot)
-    -- print(centerSpot[1] .. ", " .. centerSpot[2])
+    print(centerSpot[1] .. ", " .. centerSpot[2])
     while(path[1][1] ~= startY or path[1][2] ~= startX) do 
         -- print("in first while")
         next = findNext(startDiscovered, path[1])

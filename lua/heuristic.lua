@@ -473,40 +473,55 @@ function getNextCharMove(character, slotNum, map)
     return move;
 end
 
-function hasSomeoneToMove(chars)
+function numUnits(chars)
+    num = 0
     for i,v in ipairs(chars) do
-        if string.format("%x", memory.readword(v[2]) ) ~= "0"
-        and string.format("%x", memory.readbyte(v[5]) ) == "0" then
-            return true;
+        if string.format("%x", memory.readword(v[2]) ) ~= "0" then
+            num = num+1
         end
     end
-    return false
+    return num
 end
 
 function GroupHeuristic(tableOfCharacters, map)
     local moves = {};
     slotsMoved = {};
 
-    local numOfUnits = 0
+    -- local numOfUnits = 0
     local whlieLoopCounter = 0;
-
+    print(numUnits(tableOfCharacters))
     for i =1, 16 do
         table.insert(slotsMoved, 0)
     end
-    TheCharData.PrintTable(tableOfCharacters)
+    -- TheCharData.PrintTable(tableOfCharacters)
 
-    for i,v in ipairs(tableOfCharacters) do
-        if string.format("%x", memory.readword(v[2]) ) ~= "0" then
-            numOfUnits = numOfUnits + 1
-            moves[i] = getNextCharMove(v, i, map)
-            TheVBA.Press("L", 60)
-        end
-    end
+    -- for i,v in ipairs(tableOfCharacters) do
+    --     if string.format("%x", memory.readword(v[2]) ) ~= "0" then
+    --         numOfUnits = numOfUnits + 1
+    --         moves[i] = getNextCharMove(v, i, map)
+    --         TheVBA.Press("L", 60)
+    --     end
+    -- end
     globals.tprint(moves)
     
-    while whlieLoopCounter < numOfUnits do -- fix this shit
+   repeat -- fix this shit
         local highestScore = 0
         local slotToMove = 0
+        
+
+        for i,v in ipairs(tableOfCharacters) do
+            if string.format("%x", memory.readword(v[2]) ) ~= "0" then
+                if string.format("%x", memory.readbyte(v[5]) ) == "0"
+                then
+                    -- numOfUnits = numOfUnits + 1
+                    moves[i] = getNextCharMove(v, i, map)
+                    TheVBA.Press("L", 60)
+                else
+                    moves[i] = {0,0,0,"wait"}
+                end
+            end
+        end
+        globals.tprint(moves)
         -- get highest score
         for i,v in ipairs(moves) do
             print(v[1] .." > " .. highestScore .. "?")
@@ -546,20 +561,9 @@ function GroupHeuristic(tableOfCharacters, map)
         map = TheCharData.addUnitsToMap(map)
         moves = {}
         -- globals.tprint(map)
-        for i,v in ipairs(tableOfCharacters) do
-            if string.format("%x", memory.readword(v[2]) ) ~= "0" then
-                if string.format("%x", memory.readbyte(v[5]) ) == "0"
-                then
-                    moves[i] = getNextCharMove(v, i, map)
-                    TheVBA.Press("L", 60)
-                else
-                    moves[i] = {0,0,0,"wait"}
-                end
-            end
-        end
-        globals.tprint(moves)
+        
         whlieLoopCounter = whlieLoopCounter + 1
-    end
+    until whlieLoopCounter >= numUnits(tableOfCharacters)
     print("done with round")
     return map
 end

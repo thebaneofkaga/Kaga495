@@ -36,15 +36,15 @@ function Move(Unit, LocX, LocY)
     --]]
     
     --actually select the unit
-    TheVba.Press("A", 4)    
+    TheVba.Press("A",30)    
     --move left/right first
     for i = 1, absX, 1
     do
         if (difX < 0)
         then
-            TheVba.Press("left", 30)
+            TheVba.Press("left", 60)
         else
-            TheVba.Press("right", 30)
+            TheVba.Press("right", 60)
         end
     end
 
@@ -53,9 +53,9 @@ function Move(Unit, LocX, LocY)
     do
         if (difY < 0)
         then
-            TheVba.Press("up", 30)
+            TheVba.Press("up", 60)
         else
-            TheVba.Press("down", 30)
+            TheVba.Press("down", 60)
         end
     end
 
@@ -68,7 +68,7 @@ end
 --the weapon should be there because that weapon was chosen based on an investigated combat window
 function Attack(Unit, Weapon, EneX, EneY)
     --press "Attack"
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --select the weapon
     --assume the weapon to use isn't the first one you see (it might be though)
     notOnWeapon = true
@@ -129,7 +129,7 @@ function Attack(Unit, Weapon, EneX, EneY)
     --the end of this loop should secure the enemy is the proper one selected
 
     --Confirm the combat window
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --Wait for the round of combat.
     --Might need to increase this time due to level ups and such
     --240 frames seem to be a generous enough wait time for a "one time fits all" 
@@ -149,7 +149,7 @@ function UseItem(Unit, Item)
     local firstItem = Unit[itemSlotOne]
     local currItem = firstItem
     --Press "Item"
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --Cycle until you find the item you want to use
     --The most common call will probably be "6B" (Vulnerary)
     for i = 1, 5, 1
@@ -157,9 +157,9 @@ function UseItem(Unit, Item)
         if(Item == memory.readbyte(currItem))
         then
             --Select the item
-            TheVba.Press("A", 30)
+            TheVba.Press("A", 60)
             --Confirm to use the item
-            TheVba.Press("A", 30)
+            TheVba.Press("A", 60)
             return
         else
             --Reminder: Unit[21], 23, 25... are the item amounts (For example: Vulnerary has 3 uses)
@@ -187,7 +187,7 @@ end
 --Like above, the function does not care about if a unit has Canto
 function OpenDoor(Unit)
     --Opens the door (near instantly)
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
 end
 
 --no parameters needed
@@ -201,11 +201,11 @@ end
 function PurchaseItem(Shop, Gold, Item)
     --The unit itself isn't important when shopping UNLESS we decide that we won't use the convoy (not enough space to buy)
     --enter the shop
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --Skip dialogue
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --Select "Buy"
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --TODO: Add find item in the shop
     --Issue: Cannot find the hex values of items in a given shop! (See "GetShopData()")
 end
@@ -240,7 +240,7 @@ end
 --no parameters needed
 function Seize()
     --Seize instantly ends the chapter
-    TheVba.Press("A", 30)
+    TheVba.Press("A", 60)
     --Consider adding in calls to skip post-chapter dialogue
 end
 
@@ -250,10 +250,10 @@ function Wait()
     --surprisingly more common than expected
     --Interesting Note: wait is always the last option to select (moving up loops the selector to the bottom)
     --If you have no items in your inventory and you are not adjacent to anyone, you might not have ANY other possible actions
-    --Because of this, pressing "up" when your list of actions is just "Wait" results in an obsolete waste of 30 frames
+    --Because of this, pressing "up" when your list of actions is just "Wait" results in an obsolete waste of 60 frames
     --But I won't optimize this
-    TheVba.Press("up", 30)
-    TheVba.Press("A", 30)
+    TheVba.Press("up", 60)
+    TheVba.Press("A", 60)
 end
 
 --no parameters needed
@@ -300,7 +300,7 @@ end
 function VisitVillage()
     TheVba.Press("A", 60)
     --Similar to opening a chest, I'm giving a fairly generous wait time
-    TheVba.Press("start", 300)
+    TheVba.Press("start", 3600)
 end
 
 
@@ -523,7 +523,8 @@ function Investigate(map, Unit)
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
         end
     end
-
+    print(enemiesOneRange)
+    print(enemiesTwoRange)
     --assume that on any given tile, you can't attack anything (reasonable assumption)
     canAttack = false
 
@@ -545,6 +546,7 @@ function Investigate(map, Unit)
                 --]]
                 if(myRanges[i] == 1 or myRanges[i] == 3)
                 then
+                    print("can Attack")
                     --I've confirmed that I -can- attack, so I know the input will happen
                     canAttack = true
                 end
@@ -557,6 +559,7 @@ function Investigate(map, Unit)
             do
                 if(myRanges[i] == 2 or myRanges[i] == 3)
                 then
+                    print("can Attack")
                     canAttack = true
                 end
             end
@@ -654,7 +657,7 @@ end
 
 function returnToStart()
     for i = 1, 5 do
-        TheVba.Press("B", 30)
+        TheVba.Press("B", 60)
     end
 end
 

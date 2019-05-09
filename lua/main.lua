@@ -5,18 +5,26 @@ local BFS = require("2pointBFS")
 local classData = require("classData")
 local TheActions = require("actions")
 local globals = require("globals")
+local TheVBA = require("vbaF")
 
 
 map = mapReader.setupMap();
 map = charData.addUnitsToMap(map)
 
+-- globals.tprint(map)
+
+-- charData.PrintTable(charData.EnemyUnits)
+
 -- charData.tprint(map)
 
-map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
+-- map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
+-- TheActions.WaitOutTheEnemy()
+-- TheVBA.Press("start", 3600)
+-- map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 
 -- move = heuristic.getNextCharMove(charData.PlayerUnits[2], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[2][2])))
 -- globals.tprint(move)
--- TheActions.Investigate(map, charData.PlayerUnits[2])
+TheActions.Investigate(map, charData.PlayerUnits[2])
 
 
 -- myUnit = charData.PlayerUnits[2] --should be Marcus (11)
@@ -31,9 +39,9 @@ map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 -- print("myScore: " .. myScore)
 
 
--- path = BFS.goalPath(16,12, 4, 8,map, classData.GetClassType(memory.readword(charData.PlayerUnits[1][2])));
--- charData.tprint(path)
--- dist = BFS.getLengthOfPath(path, map, classData.GetClassType(memory.readword(charData.PlayerUnits[1][2])))
+-- path = BFS.BFS(15,5, 8, 5,map, classData.GetClassType(memory.readword(charData.PlayerUnits[3][2])));
+-- globals.tprint(path)
+-- dist = BFS.getLengthOfPath(path, map, classData.GetClassType(memory.readword(charData.PlayerUnits[3][2])))
 -- print(dist)
 -- print(memory.readword(charData.PlayerUnits[2][2]))
 -- moves = heuristic.findMoves(charData.PlayerUnits[2], map, classData.GetClassType( memory.readword(charData.PlayerUnits[2][2])) )
