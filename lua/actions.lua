@@ -648,6 +648,33 @@ function Investigate(map, Unit)
                     end
                     --back out of this weapon
                     TheVba.Press("B", 60)
+                elseif(currRange == 2)
+                then
+                    --enter the combat window
+                    TheVba.Press("A", 60)
+                    for j = 1, enemiesTwoRange, 1
+                    do
+                        local tempCombatWindow = {}
+                        table.insert(tempCombatWindow, aCombatWindow)
+                        --Grab the temp addresses and put them into a table
+                        tempCombatWindow[1] = memory.readbyte(0x0203A4E2) --enemyHP
+                        tempCombatWindow[2] = memory.readbyte(0x0203A4F7) --enemyDMG
+                        tempCombatWindow[3] = memory.readbyte(0x0203A4D4) --enemyHIT
+                        tempCombatWindow[4] = memory.readbyte(0x0203A4CE) --enemyEffSpd
+                        tempCombatWindow[5] = memory.readbyte(Unit[10])   --playerHP; ironically, currHP is always here
+                        tempCombatWindow[6] = memory.readbyte(0x0203A4F3) --playerDMG
+                        tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
+                        tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
+                        tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
+                        tempCombatWindow[10] = memory.readbyte(0x0203A480)
+                        tempCombatWindow[11] = memory.readbyte(0x0203A481)
+                        --then put them into a table of all the combat windows
+                        table.insert(combatWindows, tempCombatWindow)
+                        --cylce to the next enemy 
+                        TheVba.Press("right", 60)
+                    end
+                    --back out of this weapon
+                    TheVba.Press("B", 60)
                 end
                 --cycle through the weapons
                 for j = 1, i, 1
