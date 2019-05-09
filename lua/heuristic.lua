@@ -426,16 +426,29 @@ function calculateScore(x, y, character, map)
                 score = score + 25
             end
         end
-        returnCode[1] = score
-        return returnCode
     end
-
+    range = TheClassData.GetClassType(memory.readword(character[2]))
+    print(BFS.getLengthOfPath(BFS.goalPath(memory.readbyte(character[7]) + 1,
+    memory.readbyte(character[8]) + 1, 4, 8, map, range),
+    map, range) .. "___________________________________________________________________________________")
+    if BFS.getLengthOfPath(BFS.goalPath(memory.readbyte(character[7]) + 1,
+    memory.readbyte(character[8]) + 1, 4, 8, map, range),
+    map, range)
+    >
+    BFS.getLengthOfPath(BFS.goalPath(x,
+    y, 8, 4, map, range),
+    map, range)
+    then
+        print("moved forward")
+        score = score + 35
+    end
+    
    
     
+    returnCode[1] = score
+    return returnCode
     -- -- else
-    
 
-    return score
 end
 
 function getBestWindow(windows)

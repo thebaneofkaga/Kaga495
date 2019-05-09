@@ -39,10 +39,10 @@ map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 -- print("myScore: " .. myScore)
 
 
--- path = BFS.BFS(15,5, 8, 5,map, classData.GetClassType(memory.readword(charData.PlayerUnits[3][2])));
+-- path = BFS.goalPath(16,12, 4, 8,map, classData.GetClassType(memory.readword(charData.PlayerUnits[3][2])));
 -- globals.tprint(path)
 -- dist = BFS.getLengthOfPath(path, map, classData.GetClassType(memory.readword(charData.PlayerUnits[3][2])))
 -- print(dist)
--- print(memory.readword(charData.PlayerUnits[2][2]))
+-- -- print(memory.readword(charData.PlayerUnits[2][2]))
 -- moves = heuristic.findMoves(charData.PlayerUnits[2], map, classData.GetClassType( memory.readword(charData.PlayerUnits[2][2])) )
 -- tprint(moves)
