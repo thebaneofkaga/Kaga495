@@ -560,10 +560,37 @@ function GroupHeuristic(tableOfCharacters, map)
         -- re-evaluate
         for i = slotToMove, #tableOfCharacters do
             if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0"
-            and string.format("%x", memory.readword(tableOfCharacters[i][5])) == "0" then
+            -- and string.format("%x", memory.readword(tableOfCharacters[i][5])) == "0" 
+            then
                 print("press L")
                 TheVBA.Press("L", 30)
             end
+        end
+        blankSpace = false
+        char = tableOfCharacters[slotToMove]
+        spotsLeft = 0
+        spotsUp = 0
+
+        while not blankSpace do 
+            if memory.readbyte(char[7]) + 1 - spotsLeft > 0
+            and map[memory.readbyte(char[8]) + 1 - spotsUp][memory.readbyte(char[7]) + 1 - spotsLeft]
+            then
+                -- move cursor
+                TheVBA.Press("left", 60)
+                -- press L
+                TheVBA.Press("L", 60)
+                blankSpace = true
+            elseif memory.readbyte(char[8]) + 1 - spotsUp > 0
+            and map[memory.readbyte(char[8]) + 1- spotsUp][memory.readbyte(char[7]) + 1 - spotsLeft]
+            then
+                -- move cursor
+                TheVBA.Press("up", 60)
+                -- press L
+                TheVBA.Press("L" , 60)
+                blankSpace = true
+            end
+            spotsLeft = spotsLeft + 1
+            spotsUp = spotsUp + 1
         end
         -- print("---------------------------------------------------------------------------------")
         -- TheCharData.PrintTable(TheCharData.EnemyUnits)
