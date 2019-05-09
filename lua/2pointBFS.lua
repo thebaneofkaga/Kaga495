@@ -120,7 +120,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     -- print(#map .. ", " .. #map[1])
     print(map[5][13][2])
     
-    print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
+    -- print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     if startY > #map 
     or startX  > #map[startY]
     or endY > #map

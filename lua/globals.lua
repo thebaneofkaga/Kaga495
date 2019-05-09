@@ -4,6 +4,9 @@ local M = {}
 -- https://stackoverflow.com/questions/1252539/most-efficient-way-to-determine-if-a-lua-table-is-empty-contains-no-entries
 -- by user FichteFoll
 function empty(self)
+    if self == nil then
+        return true
+    end
     for i,v in ipairs(self) do
         return false
     end

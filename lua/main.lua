@@ -22,7 +22,7 @@ map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 -- TheVBA.Press("start", 3600)
 -- map = heuristic.GroupHeuristic(charData.PlayerUnits, map)
 
--- move = heuristic.getNextCharMove(charData.PlayerUnits[2], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[2][2])))
+-- move = heuristic.getNextCharMove(charData.PlayerUnits[6], 2, map, classData.GetClassType(memory.readword(charData.PlayerUnits[6][2])))
 -- globals.tprint(move)
 -- TheActions.Investigate(map, charData.PlayerUnits[2])
 

@@ -75,7 +75,7 @@ function Attack(Unit, Weapon, EneX, EneY)
     while(notOnWeapon)
     do
         --this is one of 3 addresses that all hold the currently "hovered over" item in this menu
-        currItem = memory.readbyte(0x0203A40E) .. ""
+        currItem =string.format("%x", memory.readbyte(0x0203A40E))
         if(currItem == Weapon)
         then
             --now that we found the weapon we can press down and enter the combat window
@@ -84,6 +84,7 @@ function Attack(Unit, Weapon, EneX, EneY)
             notOnWeapon = false
         else
             --cycle down the list of items
+            -- print("not on weapon")
             TheVba.Press("down", 60)
         end
     end
@@ -123,6 +124,7 @@ function Attack(Unit, Weapon, EneX, EneY)
         else 
             --otherwise, we can cycle to the next target
             --when this continues to loop, the dumX and dumY will get re-read for the next comparison
+            -- print("not on enemy")
             TheVba.Press("right", 60)
         end
     end
@@ -523,8 +525,8 @@ function Investigate(map, Unit)
             enemiesOneOrTwoRange = enemiesOneOrTwoRange + 1
         end
     end
-    print(enemiesOneRange)
-    print(enemiesTwoRange)
+    -- print(enemiesOneRange)
+    -- print(enemiesTwoRange)
     --assume that on any given tile, you can't attack anything (reasonable assumption)
     canAttack = false
 
@@ -564,7 +566,7 @@ function Investigate(map, Unit)
                 end
             end
         end
-        print(canAttack)
+        -- print(canAttack)
         --by now, I should know if I can attack (based on the aformentioned bool)
         if(canAttack)
         then
@@ -637,6 +639,8 @@ function Investigate(map, Unit)
                         tempCombatWindow[7] = memory.readbyte(0x0203A454) --playerHIT
                         tempCombatWindow[8] = memory.readbyte(0x0203A44E) --playerEffSpd
                         tempCombatWindow[9] = string.format("%x", memory.readbyte(Unit[20])) --player selected weapon
+                        tempCombatWindow[10] = memory.readbyte(0x0203A480)
+                        tempCombatWindow[11] = memory.readbyte(0x0203A481)
                         --then put them into a table of all the combat windows
                         table.insert(combatWindows, tempCombatWindow)
                         --cylce to the next enemy 

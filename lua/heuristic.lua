@@ -309,76 +309,82 @@ function calculateScore(x, y, character, map)
         
         globals.tprint(windows)
         bestWindow = getBestWindow(windows)
-        -- globals.tprint(bestWindow)
-        returnCode[4] = "attack"
-        returnCode[5] = bestWindow[9]
-        returnCode[6] = bestWindow[10]
-        returnCode[7] = bestWindow[11]
+        if(not globals.empty(bestWindow)) then
+            -- globals.tprint(bestWindow)
+            returnCode[4] = "attack"
+            returnCode[5] = bestWindow[9]
+            returnCode[6] = bestWindow[10]
+            returnCode[7] = bestWindow[11]
+            
+            -- calc attack score
+            myHit = bestWindow[7]
+            myTrueHit = TheTrueHit.GetTrueHit(myHit)
+            myHitScore = 40 * myTrueHit / 100
+            score = score + myHitScore
+
+            -- -- add if can kill 45
+            --Note: This will be weighted by the myHitScore (which already factors in true hit)
+            --A Fine Note: If you overkill an enemy (say, doing 21 damage to someone with 20 HP), you only do 20 damage
+            --Possible Caution: Suppose you could kill an enemy on the follow up attack
+            --You definitely can kill them, but you risk taking damage on the enemies attack (2nd of the 3 in total)...
+            --BIG Note: You don't double with Spd, you double with EFFECTIVE Spd
+            --Spd Penalty = WeaponWeight - Con; if this value is positive, it becomes 0 (can only be negative)
+            --Effective Spd = Spd - Spd Penalty
+            --Luckily for us, this EffSpd value is already in memory!
+            --Late Game Caution: Not factoring in brave weapons (these make you attack 2x per swing (up to 4x))
+            mySpd = memory.readbyte(0x0203A44E)
+            enemySpd = memory.readbyte(0x0203A4CE)
+
+            myDamage = bestWindow[6]
+
+            if(mySpd >= (enemySpd + 4))
+            then
+                myDamage = myDamage * 2
+            end
+
+            enemyHP = bestWindow[1]
+            if(myDamage >= enemyHP)
+            then
+                score = score + 45 * myTrueHit / 100
+            end
+
+            -- add if will get hit -25
+            --Note: Similar to your hit rate, this value will be a percentage of the enemy hit rate
+            --Note: A unit who has a 2 range weapon attacked at 1 range has a hit rate of -1 (-- on the combat window)
+            enemyHit = bestWindow[3]
+            enemyDmg =bestWindow[2]
+            if(enemyHit > 0 and enemyDmg > 0)
+            then
+                enemyTrueHit = TheTrueHit.GetTrueHit(enemyHit)
+            else 
+                enemyTrueHit = 0
+            end
+
+            score = score - 25 * enemyTrueHit / 100
+
+            -- add if survivable (50/ -50)
+            --This will be a simple check to see if dying is in the realm of possibility
+            --By design, if there is a non-zero chance of displayed hit that will kill the player unit, this gets full -50
+            --Conversely, if there is a zero chance of dying, you get the full +50
+            --We wanted to make some numerical weight to remove gambling--even if gambling is truly the best move
+            --Note: the enemy potentially doubles here, but it's likely that it would not happen
+            myCurHP = bestWindow[5]
+
+            if(enemySpd >= (mySpd + 4))
+            then
+                enemyDmg = enemyDmg * 2
+            end
+
+            if(enemyDmg >= myCurHP)
+            then
+                score = score - 50
+            else
+                score = score + 50
+            end
         
-        -- calc attack score
-        myHit = bestWindow[7]
-        myTrueHit = TheTrueHit.GetTrueHit(myHit)
-        myHitScore = 40 * myTrueHit / 100
-        score = score + myHitScore
-
-        -- -- add if can kill 45
-        --Note: This will be weighted by the myHitScore (which already factors in true hit)
-        --A Fine Note: If you overkill an enemy (say, doing 21 damage to someone with 20 HP), you only do 20 damage
-        --Possible Caution: Suppose you could kill an enemy on the follow up attack
-        --You definitely can kill them, but you risk taking damage on the enemies attack (2nd of the 3 in total)...
-        --BIG Note: You don't double with Spd, you double with EFFECTIVE Spd
-        --Spd Penalty = WeaponWeight - Con; if this value is positive, it becomes 0 (can only be negative)
-        --Effective Spd = Spd - Spd Penalty
-        --Luckily for us, this EffSpd value is already in memory!
-        --Late Game Caution: Not factoring in brave weapons (these make you attack 2x per swing (up to 4x))
-        mySpd = memory.readbyte(0x0203A44E)
-        enemySpd = memory.readbyte(0x0203A4CE)
-
-        myDamage = bestWindow[6]
-
-        if(mySpd >= (enemySpd + 4))
-        then
-            myDamage = myDamage * 2
-        end
-
-        enemyHP = bestWindow[1]
-        if(myDamage >= enemyHP)
-        then
-            score = score + 45 * myTrueHit / 100
-        end
-
-        -- add if will get hit -25
-        --Note: Similar to your hit rate, this value will be a percentage of the enemy hit rate
-        --Note: A unit who has a 2 range weapon attacked at 1 range has a hit rate of -1 (-- on the combat window)
-        enemyHit = bestWindow[3]
-        enemyDmg =bestWindow[2]
-        if(enemyHit > 0 and enemyDmg > 0)
-        then
-            enemyTrueHit = TheTrueHit.GetTrueHit(enemyHit)
-        else 
-            enemyTrueHit = 0
-        end
-
-        score = score - 25 * enemyTrueHit / 100
-
-        -- add if survivable (50/ -50)
-        --This will be a simple check to see if dying is in the realm of possibility
-        --By design, if there is a non-zero chance of displayed hit that will kill the player unit, this gets full -50
-        --Conversely, if there is a zero chance of dying, you get the full +50
-        --We wanted to make some numerical weight to remove gambling--even if gambling is truly the best move
-        --Note: the enemy potentially doubles here, but it's likely that it would not happen
-        myCurHP = bestWindow[5]
-
-        if(enemySpd >= (mySpd + 4))
-        then
-            enemyDmg = enemyDmg * 2
-        end
-
-        if(enemyDmg >= myCurHP)
-        then
-            score = score - 50
         else
-            score = score + 50
+            score = -999
+            returnCode[4] = "wait"
         end
     
     else
@@ -438,12 +444,16 @@ function getBestWindow(windows)
     globals.tprint(windows)
     for i,v in ipairs(windows) do 
         score = (TheTrueHit.GetTrueHit(v[7]) * v[6]) - (TheTrueHit.GetTrueHit(v[3]) * v[2])
+        print(score)
         if(score > bestScore) then
+            globals.tprint(v)
             bestScore = score
             bestIndex = i
         end
     end
-
+    if(bsetScore == 0) then
+        return {}
+    end
     return windows[bestIndex]
 end
 
@@ -531,9 +541,9 @@ function GroupHeuristic(tableOfCharacters, map)
             end
         end
         -- execute move
-        if not globals.empty(slotsMoved) then
-            -- print(slotToMove .. " - " .. 1 .. " - " .. #slotsMoved " = " .. slotToMove - 1 - #slotsMoved)
-        end
+        -- if not globals.empty(slotsMoved) then
+        --     -- print(slotToMove .. " - " .. 1 .. " - " .. #slotsMoved " = " .. slotToMove - 1 - #slotsMoved)
+        -- end
         for i = 1, slotToMove - 1 do 
             if slotsMoved[i] == 0 then
                 TheVBA.Press("L", 30)
@@ -549,7 +559,8 @@ function GroupHeuristic(tableOfCharacters, map)
         globals.tprint(slotsMoved)
         -- re-evaluate
         for i = slotToMove, #tableOfCharacters do
-            if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0" then
+            if string.format("%x", memory.readword(tableOfCharacters[i][2]) ) ~= "0"
+            and string.format("%x", memory.readword(tableOfCharacters[i][5])) == "0" then
                 print("press L")
                 TheVBA.Press("L", 30)
             end
