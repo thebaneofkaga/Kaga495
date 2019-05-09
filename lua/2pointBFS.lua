@@ -118,7 +118,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     endDiscovered = {};
     -- print(terrainInfo[1])
     -- print(#map .. ", " .. #map[1])
-    print(map[5][13][2])
+    -- print(map[5][13][2])
     
     -- print(startY .. ", " .. startX .. " to " .. endY .. ", " .. endX)
     if startY > #map 
@@ -561,7 +561,7 @@ function BFS(startX, startY, endX, endY, map, terrainInfo)
     path = {}
     centerSpot = getOverlap(startDiscovered, endDiscovered);
     table.insert(path, 1, centerSpot)
-    print(centerSpot[1] .. ", " .. centerSpot[2])
+    -- print(centerSpot[1] .. ", " .. centerSpot[2])
     while(path[1][1] ~= startY or path[1][2] ~= startX) do 
         -- print("in first while")
         next = findNext(startDiscovered, path[1])
